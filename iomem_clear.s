@@ -7,6 +7,7 @@
 @ .include "pinSet.s"
 
 @ Define my Raspberry Pi
+        @ .cpu    arm1176jz-s
         .cpu    cortex-a7
         .syntax unified         @ modern syntax
 

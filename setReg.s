@@ -9,6 +9,7 @@
 @   r3 ----> posição do valor a ser movido
 
 @ Define my Raspberry Pi
+    @ .cpu    arm1176jz-s
     .cpu    cortex-a7
     .syntax unified     
 
