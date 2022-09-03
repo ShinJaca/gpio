@@ -45,11 +45,7 @@
         .section .rodata
         .align  2
 device:
-        .asciz  "/dev/gpiomem"
-fdMsg:
-        .asciz  "File descriptor = %i\n"
-memMsg:
-        .asciz  "Using memory at %p\n"
+        .asciz  "/dev/mem"
 
 @ The program
         .text
@@ -118,14 +114,10 @@ _closefile:
         
         .align  2
 @ addresses of messages
-fdMsgAddr:
-        .word   fdMsg
 deviceAddr:
         .word   device
 openMode:
         .word   O_FLAGS
-memMsgAddr:
-        .word   memMsg
 gpio:
         .word   PERIPH+GPIO_OFFSET
 

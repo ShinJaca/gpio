@@ -45,7 +45,8 @@
         .section .rodata
         .align  2
 device:
-        .asciz  "/dev/gpiomem"
+        @ .asciz  "/dev/gpiomem"
+        .asciz  "/dev/mem"
 
 @ The program
         .text
