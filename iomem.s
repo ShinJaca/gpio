@@ -45,10 +45,6 @@
         .align  2
 device:
         .asciz  "/dev/gpiomem"
-fdMsg:
-        .asciz  "File descriptor = %i\n"
-memMsg:
-        .asciz  "Using memory at %p\n"
 
 @ The program
         .text
@@ -70,11 +66,6 @@ main:
         bl      open
         mov     r4, r0          @ use r4 for file descriptor
 
-@ Display file descriptor
-        ldr     r0, fdMsgAddr   @ format for printf
-        mov     r1, r4          @ file descriptor
-        bl      printf
-
 @ Map the GPIO registers to a virtual memory location so we can access them        
         str     r4, [sp, FILE_DESCRP_ARG] @ /dev/gpiomem file descriptor
         ldr     r0, gpio        @ address of GPIO
@@ -84,53 +75,28 @@ main:
         mov     r2, PROT_RDWR   @ read/write this memory
         mov     r3, MAP_SHARED  @ share with other processes
         bl      mmap
-        mov     r5, r0          @ save virtual memory address
-        
+        mov     r7, r0          @ save virtual memory address
+
+
 _teste:
 @ TESTE DE USO DE FUNÇÕES DE CONFIGURAÇÃO
 _configpins:
-        mov     r7, r5          @salvar o endereço para as funções q vem
-        @ ldr     r1, =27
-        @ ldr     r2, =0b001
-        @ bl gpioPinFSelect
-        @ mov     r0, r7
-        @ ldr     r1, =27
-        @ ldr     r2, =0b001
-        @ bl gpioPinFSelect
-        @ mov     r0, r7
-        @ ldr     r1, =23
-        @ ldr     r2, =0b001
-        @ bl gpioPinFSelect
-_setpins:
-        @ config
         mov     r0, r7                  @ Recupera endereço base
         mov     r1, GPFSEL2             @ Registrador de configuração de modo
         mov     r2, FSEL_OUTPUT         @ Bits de modo de OUTPUT
         mov     r3, GPIO22_OFFSET       @ Offset corespondetes ao pino em GPFSEL2
         bl      setReg
 
-        @ set
+
+_setpins:
         mov     r0, r7                  @ Recupera endereço base
         mov     r1, GPSET0              @ Resistrador de limpeza dos pinos
         mov     r2, FSEL_OUTPUT         @ Bits de saída
         mov     r3, 22                  @ Offset do pino no registrador GPCLR0
         bl      setReg
-        @ ldr     r1, =27
-        @ bl gpioPinSet
-        @ mov     r0, r7
-        @ ldr     r1, =27
-        @ bl gpioPinSet
-        @ mov     r0, r7
-        @ ldr     r1, =23
-        @ bl gpioPinSet
 
-_display:
-@ Display virtual address
-        @ mov     r1, r5
-        mov     r1, r7
-        ldr     r0, memMsgAddr
-        bl      printf
-        @ mov     r0, r5          @ memory to unmap
+
+_closefile:
         mov     r0, r7          @ memory to unmap
         mov     r1, PAGE_SIZE   @ amount we mapped
         bl      munmap          @ unmap it
@@ -150,14 +116,12 @@ _display:
         
         .align  2
 @ addresses of messages
-fdMsgAddr:
-        .word   fdMsg
+
 deviceAddr:
         .word   device
 openMode:
         .word   O_FLAGS
-memMsgAddr:
-        .word   memMsg
+
 gpio:
         .word   PERIPH+GPIO_OFFSET
 
