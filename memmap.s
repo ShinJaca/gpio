@@ -26,11 +26,13 @@
         .equ    PERIPH,0x3f000000   @ RPi 2 & 3 peripherals
 @        .equ    PERIPH,0x20000000   @ RPi zero & 1 peripherals
         .equ    GPIO_OFFSET,0x200000  @ start of GPIO device
+        .equ    TIMER_OFFSET,0x3000  @ start of GPIO device
         .equ    O_FLAGS,O_RDWR|O_SYNC @ open file flags
         .equ    PROT_RDWR,PROT_READ|PROT_WRITE
         .equ    NO_PREF,0
-        .equ    PAGE_SIZE,4096  @ Raspbian memory page
+        .equ    PAGE_SIZE,0x1000  @ Raspbian memory page
         .equ    FILE_DESCRP_ARG,0   @ file descriptor
+        @ .equ    DEVICE_ARG,4        @ device address
         .equ    DEVICE_ARG,4        @ device address
         .equ    STACK_ARGS,8    @ sp already 8-byte aligned
 
@@ -39,13 +41,27 @@
         .equ    GPCLR0,0x28             @
         .equ    GPSET0,0x1c             @
         .equ    GPIO22_OFFSET,6         @ Offset da configuração do GPIO22
+        .equ    GPIO22,22
         .equ    FSEL_OUTPUT,0b001       @ Bits de modo de saída
+
+@ Endereços e offsets para o TIMER
+        .equ    TCLO,0x4
+        .equ    TCHI,0x8
+@ Loops
+        .equ    LOOPS,3
+        .equ    INTERVALO,500
+        .equ    BASEUSEC,1000
 
 @ Constant program data
         .section .rodata
         .align  2
 device:
+        @ .asciz  "/dev/gpiomem"
         .asciz  "/dev/mem"
+memMsg:
+        .asciz  "time: %d\n"
+intMsg:
+        .asciz  "intervalo: %d\n"
 
 @ The program
         .text
@@ -66,10 +82,12 @@ main:
         ldr     r1, openMode    @ flags for accessing device
         bl      open
         mov     r4, r0          @ use r4 for file descriptor
-
+_maptimer:
 @ Map the GPIO registers to a virtual memory location so we can access them        
         str     r4, [sp, FILE_DESCRP_ARG] @ /dev/gpiomem file descriptor
-        ldr     r0, gpio        @ address of GPIO
+        @ ldr     r0, gpio        @ address of GPIO
+        @ ldr     r0, timer       @ address of GPIO
+        ldr     r0, timer       @ address of GPIO
         str     r0, [sp, DEVICE_ARG]      @ location of GPIO
         mov     r0, NO_PREF     @ let kernel pick memory
         mov     r1, PAGE_SIZE   @ get 1 page of memory
@@ -77,31 +95,75 @@ main:
         mov     r3, MAP_SHARED  @ share with other processes
         bl      mmap
         mov     r7, r0          @ save virtual memory address
-        
+_mapgpio:
+        ldr     r0, gpio       @ address of GPIO
+        str     r0, [sp, DEVICE_ARG]      @ location of GPIO
+        mov     r0, NO_PREF     @ let kernel pick memory
+        mov     r1, PAGE_SIZE   @ get 1 page of memory
+        mov     r2, PROT_RDWR   @ read/write this memory
+        mov     r3, MAP_SHARED  @ share with other processes
+        bl      mmap
+        mov     r8, r0          @ save virtual memory address
+
+
 _teste:
 @ TESTE DE USO DE FUNÇÕES DE CONFIGURAÇÃO
+        mov     r6, #0                  @ inicia o contador de loops
 _configpins:
-        mov     r0, r7                  @ Recupera endereço base
+        mov     r0, r8                  @ Recupera endereço base
         mov     r1, GPFSEL2             @ Registrador de configuração de modo
         mov     r2, FSEL_OUTPUT         @ Bits de modo de OUTPUT
         mov     r3, GPIO22_OFFSET       @ Offset corespondetes ao pino em GPFSEL2
         bl      setReg
 
+_timerset:
+        mov     r10, BASEUSEC           @ base de usec
+        mov     r11, INTERVALO          @ tempo em msec
+        mul     r10, r10, r11           @ conversão de usec para msec
+
+
+        ldr     r1, [r7, TCLO]          @ lê o valor do timer para r1
+_wait1:
+        ldr     r2, [r7, TCLO]          @ carrega o tempo para comparação
+        sub     r3, r2, r1              @ intervalo atual
+        cmp     r3, r10                 @ comparação do intevalo atual com o intervalo devfinido
+        blt     _wait1
+      
 _setpins:
-        mov     r0, r7                  @ Recupera endereço base
-        mov     r1, GPSET0              @ Resistrador de setup dos pinos
+        mov     r0, r8                  @ Recupera endereço base
+        mov     r1, GPSET0              @ Resistrador de limpeza dos pinos
         mov     r2, FSEL_OUTPUT         @ Bits de saída
-        mov     r3, 22                  @ Offset do pino no registrador GPSET0
+        mov     r3, GPIO22                  @ Offset do pino no registrador GPCLR0
         bl      setReg
 
+        ldr     r1, [r7, TCLO]
+_wait2:
+        ldr     r2, [r7, TCLO]
+        sub     r3, r2, r1
+        cmp     r3, r10
+        blt     _wait2
+
+_clrpins:
+        mov     r0, r8                  @ Recupera endereço base
+        mov     r1, GPCLR0              @ Resistrador de limpeza dos pinos
+        mov     r2, FSEL_OUTPUT         @ Bits de saída
+        mov     r3, GPIO22                  @ Offset do pino no registrador GPCLR0
+        bl      setReg
+
+        mov     r0, LOOPS
+        add     r6, r6, #1
+        cmp     r6, r0
+        blt     _timerset
+
+
 _closefile:
-        mov     r0, r7          @ memory to unmap
+        mov     r0, r8          @ memory to unmap
         mov     r1, PAGE_SIZE   @ amount we mapped
         bl      munmap          @ unmap it
-
+        @ bkpt
         mov     r0, r4          @ /dev/gpiomem file descriptor
         bl      close           @ close the file
-
+        @ bkpt
         mov     r0, 0           @ return 0;
         add     sp, sp, STACK_ARGS  @ fix sp
         ldr     r4, [sp, 0]     @ restore r4
@@ -114,10 +176,22 @@ _closefile:
         
         .align  2
 @ addresses of messages
+
 deviceAddr:
         .word   device
+memMsgAddr:
+        .word   memMsg
+intMsgAddr:
+        .word   intMsg
+        
 openMode:
         .word   O_FLAGS
 gpio:
         .word   PERIPH+GPIO_OFFSET
+
+timer:
+        .word   PERIPH+TIMER_OFFSET
+
+pbase:
+        .word   PERIPH
 

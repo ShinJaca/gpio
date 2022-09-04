@@ -6,6 +6,8 @@ ioset: iomem.o setReg.o
 	gcc -o $@ $+
 ioclr: iomem_clear.o setReg.o
 	gcc -o $@ $+
+memmap: memmap.o setReg.o
+	gcc -o $@ $+
 
 # Objetos principais
 
@@ -18,7 +20,8 @@ iomem_clear.o: iomem_clear.s
 
 setReg.o: setReg.s
 	as -o $@ $<
-
+memmap.o: memmap.s
+	as -o $@ $<
 
 clean:
 	rm -vf *.o
