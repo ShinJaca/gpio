@@ -26,6 +26,7 @@
         .equ    PERIPH,0x3f000000   @ RPi 2 & 3 peripherals
 @        .equ    PERIPH,0x20000000   @ RPi zero & 1 peripherals
         .equ    GPIO_OFFSET,0x200000  @ start of GPIO device
+        .equ    TIMER_OFFSET,0x3000  @ start of GPIO device
         .equ    O_FLAGS,O_RDWR|O_SYNC @ open file flags
         .equ    PROT_RDWR,PROT_READ|PROT_WRITE
         .equ    NO_PREF,0
@@ -41,10 +42,15 @@
         .equ    GPIO22_OFFSET,6         @ Offset da configuração do GPIO22
         .equ    FSEL_OUTPUT,0b001       @ Bits de modo de saída
 
+@ Endereços e offsets para o TIMER
+        .equ    TCLO,0x4
+        .equ    TCHI,0x8
+
 @ Constant program data
         .section .rodata
         .align  2
 device:
+        @ .asciz  "/dev/gpiomem"
         .asciz  "/dev/mem"
 
 @ The program
@@ -77,7 +83,8 @@ main:
         mov     r3, MAP_SHARED  @ share with other processes
         bl      mmap
         mov     r7, r0          @ save virtual memory address
-        
+
+
 _teste:
 @ TESTE DE USO DE FUNÇÕES DE CONFIGURAÇÃO
 _configpins:
@@ -87,21 +94,52 @@ _configpins:
         mov     r3, GPIO22_OFFSET       @ Offset corespondetes ao pino em GPFSEL2
         bl      setReg
 
+@ _timerset:
+@         mov     r10, #1000
+@         mov     r11, #5000
+@         mul     r10, r10, r11
+
+@         mov     r0, r7
+@         @ orr     r0, r0, TIMER_OFFSET
+
+@         ldr     r1, [r0, TCLO]
+@ _wait1:
+@         ldr     r2, [r0, TCLO]
+@         sub     r2, r2, r1
+@         cmp     r2, r10
+@         blt     _wait1
+
 _setpins:
         mov     r0, r7                  @ Recupera endereço base
-        mov     r1, GPSET0              @ Resistrador de setup dos pinos
+        mov     r1, GPSET0              @ Resistrador de limpeza dos pinos
         mov     r2, FSEL_OUTPUT         @ Bits de saída
-        mov     r3, 22                  @ Offset do pino no registrador GPSET0
+        mov     r3, 22                  @ Offset do pino no registrador GPCLR0
         bl      setReg
+
+@         orr r0, r7, TIMER_OFFSET
+@         ldr     r1, [r0, TCLO]
+@ _wait2:
+@         ldr     r2, [r0, TCLO]
+@         sub     r2, r2, r1
+@         cmp     r2, r10
+@         blt     _wait2
+
+_clrpins:
+        mov     r0, r7                  @ Recupera endereço base
+        mov     r1, GPCLR0              @ Resistrador de limpeza dos pinos
+        mov     r2, FSEL_OUTPUT         @ Bits de saída
+        mov     r3, 22                  @ Offset do pino no registrador GPCLR0
+        bl      setReg
+
 
 _closefile:
         mov     r0, r7          @ memory to unmap
         mov     r1, PAGE_SIZE   @ amount we mapped
         bl      munmap          @ unmap it
-
+        @ bkpt
         mov     r0, r4          @ /dev/gpiomem file descriptor
         bl      close           @ close the file
-
+        @ bkpt
         mov     r0, 0           @ return 0;
         add     sp, sp, STACK_ARGS  @ fix sp
         ldr     r4, [sp, 0]     @ restore r4
@@ -114,10 +152,12 @@ _closefile:
         
         .align  2
 @ addresses of messages
+
 deviceAddr:
         .word   device
 openMode:
         .word   O_FLAGS
 gpio:
         .word   PERIPH+GPIO_OFFSET
+        @ .word   PERIPH+TIMER_OFFSET
 
