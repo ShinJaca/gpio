@@ -94,43 +94,12 @@ _configpins:
         mov     r3, GPIO22_OFFSET       @ Offset corespondetes ao pino em GPFSEL2
         bl      setReg
 
-@ _timerset:
-@         mov     r10, #1000
-@         mov     r11, #5000
-@         mul     r10, r10, r11
-
-@         mov     r0, r7
-@         @ orr     r0, r0, TIMER_OFFSET
-
-@         ldr     r1, [r0, TCLO]
-@ _wait1:
-@         ldr     r2, [r0, TCLO]
-@         sub     r2, r2, r1
-@         cmp     r2, r10
-@         blt     _wait1
-
 _setpins:
         mov     r0, r7                  @ Recupera endereço base
         mov     r1, GPSET0              @ Resistrador de limpeza dos pinos
         mov     r2, FSEL_OUTPUT         @ Bits de saída
         mov     r3, 22                  @ Offset do pino no registrador GPCLR0
         bl      setReg
-
-@         orr r0, r7, TIMER_OFFSET
-@         ldr     r1, [r0, TCLO]
-@ _wait2:
-@         ldr     r2, [r0, TCLO]
-@         sub     r2, r2, r1
-@         cmp     r2, r10
-@         blt     _wait2
-
-_clrpins:
-        mov     r0, r7                  @ Recupera endereço base
-        mov     r1, GPCLR0              @ Resistrador de limpeza dos pinos
-        mov     r2, FSEL_OUTPUT         @ Bits de saída
-        mov     r3, 22                  @ Offset do pino no registrador GPCLR0
-        bl      setReg
-
 
 _closefile:
         mov     r0, r7          @ memory to unmap
