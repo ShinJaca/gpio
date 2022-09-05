@@ -63,6 +63,9 @@ memMsg:
 intMsg:
         .asciz  "intervalo: %d\n"
 
+
+
+
 @ The program
         .text
         .align  2
@@ -82,19 +85,21 @@ main:
         ldr     r1, openMode    @ flags for accessing device
         bl      open
         mov     r4, r0          @ use r4 for file descriptor
-_maptimer:
-@ Map the GPIO registers to a virtual memory location so we can access them        
         str     r4, [sp, FILE_DESCRP_ARG] @ /dev/gpiomem file descriptor
-        @ ldr     r0, gpio        @ address of GPIO
-        @ ldr     r0, timer       @ address of GPIO
-        ldr     r0, timer       @ address of GPIO
-        str     r0, [sp, DEVICE_ARG]      @ location of GPIO
+
+_maptimer:
+        ldr     r0, timer       @ address of TIMER
+        str     r0, [sp, DEVICE_ARG]      @ location of TIMER
         mov     r0, NO_PREF     @ let kernel pick memory
         mov     r1, PAGE_SIZE   @ get 1 page of memory
         mov     r2, PROT_RDWR   @ read/write this memory
         mov     r3, MAP_SHARED  @ share with other processes
         bl      mmap
-        mov     r7, r0          @ save virtual memory address
+        @ mov     r7, r0          @ save virtual memory address
+        ldr     r7, =timerMapedAddres
+        str     r0, [r7]
+
+@ Map the GPIO registers to a virtual memory location so we can access them        
 _mapgpio:
         ldr     r0, gpio       @ address of GPIO
         str     r0, [sp, DEVICE_ARG]      @ location of GPIO
@@ -103,13 +108,16 @@ _mapgpio:
         mov     r2, PROT_RDWR   @ read/write this memory
         mov     r3, MAP_SHARED  @ share with other processes
         bl      mmap
-        mov     r8, r0          @ save virtual memory address
-
+        @ mov     r8, r0          @ save virtual memory address
+        ldr     r7, =gpioMapedAddres    @ aponta para a variavel
+        str     r0, [r7]                @ armazena o valor na variavel do ponteiro
 
 _teste:
 @ TESTE DE USO DE FUNÇÕES DE CONFIGURAÇÃO
         mov     r6, #0                  @ inicia o contador de loops
 _configpins:
+        ldr     r8, =gpioMapedAddres    @ aponta para a variavel
+        ldr     r8, [r8]                @ recupera o valor da variavel do ponteiro
         mov     r0, r8                  @ Recupera endereço base
         mov     r1, GPFSEL2             @ Registrador de configuração de modo
         mov     r2, FSEL_OUTPUT         @ Bits de modo de OUTPUT
@@ -121,7 +129,8 @@ _timerset:
         mov     r11, INTERVALO          @ tempo em msec
         mul     r10, r10, r11           @ conversão de usec para msec
 
-
+        ldr     r7, =timerMapedAddres
+        ldr     r7, [r7]
         ldr     r1, [r7, TCLO]          @ lê o valor do timer para r1
 _wait1:
         ldr     r2, [r7, TCLO]          @ carrega o tempo para comparação
@@ -195,3 +204,6 @@ timer:
 pbase:
         .word   PERIPH
 
+.data
+        timerMapedAddres: .word   0
+        gpioMapedAddres: .word   0

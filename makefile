@@ -23,5 +23,10 @@ memmap.o: memmap.s
 setReg.o: setReg.s
 	as -o $@ $<
 
+teste: teste.o
+	gcc -o $@ $+
+teste.o: teste.s
+	as -o $@ $<
+
 clean:
 	rm -vf *.o
