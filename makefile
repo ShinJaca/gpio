@@ -1,4 +1,4 @@
-all: ioset ioclr clean
+all: ioset ioclr memmap clean
 
 # Executáveis
 
@@ -15,12 +15,12 @@ iomem.o: iomem.s
 	as -o $@ $<
 iomem_clear.o: iomem_clear.s
 	as -o $@ $<
+memmap.o: memmap.s
+	as -o $@ $<
 
 # Bibliotecas
 
 setReg.o: setReg.s
-	as -o $@ $<
-memmap.o: memmap.s
 	as -o $@ $<
 
 clean:
