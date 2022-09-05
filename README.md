@@ -43,3 +43,23 @@ sudo ./ioclr
 # pisca o LED 3 vezes
 sudo ./memmap
 ```
+
+### Compilação Manual
+
+```console
+# montagem
+as -o iomem.o iomem.s
+as -o setReg.o setReg.s
+
+# link com gcc (necessário pelas funções de sistema)
+gcc -o ioset iomem.o setReg.o
+```
+
+```console
+# montagem
+as -o iomem_clear.o iomem_clear.s
+as -o setReg.o setReg.s
+
+# link com gcc (necessário pelas funções de sistema)
+gcc -o ioclr iomem_clear.o setReg.o
+```
