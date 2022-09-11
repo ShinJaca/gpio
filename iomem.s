@@ -3,8 +3,6 @@
 @ 2017-09-29: Bob Plantz 
 
 
-@ .include "pinConfig.s"
-@ .include "pinSet.s"
 .include "funcs.s"
 
 @ Define my Raspberry Pi
@@ -77,13 +75,8 @@ _closefile:
         bx      lr              @ return
         
         .align  2
-@ addresses of messages
 
 
-
-gpio:
-        .word   PERIPH+GPIO_OFFSET
-        @ .word   PERIPH+TIMER_OFFSET
 fileDescriptor_adr:     .word fileDescriptor
 mappedAdress_adr:       .word mappedAdress
 

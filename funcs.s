@@ -95,3 +95,11 @@ deviceAddr:
 openMode:
         .word   O_FLAGS
 
+gpio:
+        .word   PERIPH+GPIO_OFFSET
+timer:
+        .word   PERIPH+TIMER_OFFSET
+
+
+
+        
