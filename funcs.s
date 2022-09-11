@@ -89,6 +89,19 @@ device:
         str     r0, [r1]
 .endm
 
+.macro _setreg port_adr, regmask, data, data_pos
+        ldr r0, \port_adr
+        ldr r0, [r0] 
+        mov r1, \regmask
+        @ mov r2, \data_pos
+        bic r0, r0, r1, lsl \data_pos
+        mov r1, \data
+        lsl r1, r1, \data_pos
+        orr r0, r0, r1
+        ldr r1, \port_adr
+        str r0, [r1]
+.endm   
+
 
 deviceAddr:
         .word   device
