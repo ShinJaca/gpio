@@ -73,7 +73,7 @@ _write4bits:
 
         bx lr
 
-_clean4Bits:
+_clean4bits:
         _mapbitsToPort4 r0, GPORT_adr
         ldr r12, gpioAddress_adr
         ldr r12, [r12]
@@ -165,7 +165,7 @@ setmode:
         mdelay r6, tmAddress_adr
 
         mov r0, STMODE
-        bl _clean4Bits
+        bl _clean4bits
 
         mov r6, #100
         mdelay r6, tmAddress_adr
