@@ -116,25 +116,9 @@ setmode:
         mov r7, #5
         mdelay r7, tmAddress_adr
 
-        _mapbitsToPort4 r0, GPORT_adr
-        ldr r12, gpioAddress_adr
-        ldr r12, [r12]
-        ldr r11, CLEANMASK
-        str r11, [r12, GPCLR0]
-        ldr r11, GPORT_adr
-        ldr r11, [r11]
-        str r11, [r12, GPSET0]
         enpulse tmAddress_adr, gpioAddress_adr
         mdelay r7, tmAddress_adr
 
-        _mapbitsToPort4 r0, GPORT_adr
-        ldr r12, gpioAddress_adr
-        ldr r12, [r12]
-        ldr r11, CLEANMASK
-        str r11, [r12, GPCLR0]
-        ldr r11, GPORT_adr
-        ldr r11, [r11]
-        str r11, [r12, GPSET0]
         enpulse tmAddress_adr, gpioAddress_adr
         mov r7, #150
         udelay r7, tmAddress_adr
