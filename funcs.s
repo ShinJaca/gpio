@@ -51,8 +51,20 @@
         .equ    TIMER_OFFSET,0x3000  @ start of GPIO device
         .equ    TCLO,0x4
         .equ    TCHI,0x8
+        .equ    BASEUSEC, 1000
 
-    
+@ Constantes para mapeamento de pinos do LCD
+        .equ	BIT0, 0b1
+        .equ	BIT1, 0b10
+        .equ	BIT2, 0b100
+        .equ	BIT3, 0b1000
+        @bitN -> GPIOA [OFF=A-N]
+        .equ    D4O, 12 @ GPIO12
+        .equ    D5O, 15 @ GPIO16
+        .equ    D6O, 18 @ GPIO20
+        .equ    D7O, 18 @ GPIO21
+
+
 @ Constant program data
         .section .rodata
         .align  2
@@ -62,8 +74,6 @@ device:
 
         .text
         .align  2
-        .global _openfile
-        @ .type   _config, %macro
 
 .macro _openfile filedesc_adr
         ldr     r0, deviceAddr  @ address of /dev/gpiomem
@@ -73,7 +83,6 @@ device:
         str     r0, [r4]
 .endm
 
-        .global _memmap
 
 .macro _memmap base_adr, filedesc_reg, mappedadr_adr
 @ Map the address registers to a virtual memory location so we c[an access them        
@@ -93,14 +102,67 @@ device:
         ldr r0, \port_adr
         ldr r0, [r0] 
         mov r1, \regmask
-        @ mov r2, \data_pos
         bic r0, r0, r1, lsl \data_pos
         mov r1, \data
         lsl r1, r1, \data_pos
         orr r0, r0, r1
         ldr r1, \port_adr
         str r0, [r1]
-.endm   
+.endm
+
+
+.macro _mapbitsToPort val, mask, pos, port
+	ldr r12, \port 	@ endereço da porta
+@ Mascaramento do bit
+	mov r11, \val		@ valor a ser mapeado
+	mov r10, \mask		@ mascara do bit
+	and r11, r11, r10	@ isolamento do bit da mascara
+	lsl r11, r11, \pos	@ posicionamento do resultado no pino correspondente
+	ldr r10, [r12]		@ racupera o valor da porta
+	orr r11, r11, r10	@ atualiza o bit do pino no valor da porta
+	str r11, [r12]		@ atualiza a porta
+.endm
+
+.macro _bitset mask, pos
+        mov r10, \mask		@ mascara do bit
+	and r10, r11, r10	@ isolamento do bit da mascara
+	lsl r10, r10, \pos	@ posicionamento do resultado no pino correspondente
+	orr r9, r9, r10
+.endm
+
+.macro _mapbitsToPort4 val, port
+	ldr r12, \port 	@ endereço da porta
+	mov r11, \val		@ valor a ser mapeado
+	ldr r9, [r12]		@ racupera o valor da porta
+        _bitset BIT0, D4O
+        _bitset BIT1, D5O
+        _bitset BIT2, D6O
+        _bitset BIT3, D7O
+	str r9, [r12]		@ atualiza a porta
+.endm
+
+.macro _setPinOnPort pin, port
+	mov r11, BIT0
+	mov r11, r11, lsl \pin          @ mascara do pino selecionado
+	ldr r12, \port			@ endereço da variavel com endereço do periférico
+	ldr r10, [r12]			@ valor do periférico
+	orr r10, r10, r11		@ modificação do bit do pino
+	str r10, [r12]			@ muda o periférico
+.endm
+
+.macro mdelay msec, timer_adr
+        ldr r10, \timer_adr
+        ldr r10, [r10]          @ endereço do timer
+        mov r9, BASEUSEC
+        mul r9, r9, \msec
+        ldr r11, [r10, TCLO]    @ momento inicial
+\@:     
+        ldr r12, [r10, TCLO]
+        sub r12, r12, r11
+        cmp r12, r9
+        blt \@b
+.endm
+
 
 
 deviceAddr:

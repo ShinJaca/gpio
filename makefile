@@ -28,5 +28,12 @@ teste: teste.o
 teste.o: teste.s
 	as -o $@ $<
 
+
+lcd: lcdtest clean
+lcdtest: lcdtest.o
+	gcc -o $@ $+
+lcdtest.o: lcdtest.s
+	as -o $@ $<
+
 clean:
 	rm -vf *.o
