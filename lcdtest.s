@@ -47,14 +47,14 @@ _pulseEnable:
         ldr r12, [r12]
         str r10, [r12, GPCLR0]
 
-        mdelay r6, tmAddress_adr
+        udelay r6, tmAddress_adr
 
         mov r10, 0x100
         ldr r12, gpioAddress_adr
         ldr r12, [r12]
         str r10, [r12, GPSET0]
 
-        mdelay r6, tmAddress_adr
+        udelay r6, tmAddress_adr
 
         mov r10, 0x100
         ldr r12, gpioAddress_adr
@@ -85,6 +85,42 @@ _clean4bits:
         str r10, [r11]
 
         bx lr
+
+
+.macro sendCmd CMD
+        @ Primeiro os bits altos
+        mov r0, \CMD
+        lsr r0, #4
+        bl _write4bits
+
+        mov r6, #10
+        udelay r6, tmAddress_adr
+
+        bl _pulseEnable
+
+        mov r6, #100
+        udelay r6, tmAddress_adr
+
+        mov r0, \CMD
+        lsr r0, #4
+        bl _clean4bits
+        
+        
+        @ Segundo os bits baixos
+        mov r0, \CMD
+        bl _write4bits
+
+        mov r6, #10
+        udelay r6, tmAddress_adr
+
+        bl _pulseEnable
+
+        mov r6, #100
+        udelay r6, tmAddress_adr
+
+        mov r0, \CMD
+        bl _clean4bits
+.endm
 
 
         .global main
@@ -157,67 +193,67 @@ setmode:
         bl _write4bits
 
         mov r6, #10
-        mdelay r6, tmAddress_adr
+        udelay r6, tmAddress_adr
 
         bl _pulseEnable
 
         mov r6, #100
-        mdelay r6, tmAddress_adr
+        udelay r6, tmAddress_adr
 
         mov r0, STMODE
         bl _clean4bits
 
         mov r6, #100
-        mdelay r6, tmAddress_adr
+        udelay r6, tmAddress_adr
 
 setmode1:
         mov r0, STMODE
         bl _write4bits
 
         mov r6, #10
-        mdelay r6, tmAddress_adr
+        udelay r6, tmAddress_adr
 
         bl _pulseEnable
 
         mov r6, #100
-        mdelay r6, tmAddress_adr
+        udelay r6, tmAddress_adr
 
         mov r0, STMODE
         bl _clean4bits
 
         mov r6, #100
-        mdelay r6, tmAddress_adr
+        udelay r6, tmAddress_adr
 
 setmode2:
         mov r0, STMODE
         bl _write4bits
 
         mov r6, #10
-        mdelay r6, tmAddress_adr
+        udelay r6, tmAddress_adr
 
         bl _pulseEnable
 
         mov r6, #100
-        mdelay r6, tmAddress_adr
+        udelay r6, tmAddress_adr
 
         mov r0, STMODE
         bl _clean4bits
 
 
         mov r6, #100
-        mdelay r6, tmAddress_adr
+        udelay r6, tmAddress_adr
 
 bit4mode:
         mov r0, B4MODE
         bl _write4bits
 
         mov r6, #10
-        mdelay r6, tmAddress_adr
+        udelay r6, tmAddress_adr
 
         bl _pulseEnable
 
         mov r6, #100
-        mdelay r6, tmAddress_adr
+        udelay r6, tmAddress_adr
 
         mov r0, B4MODE
         _mapbitsToPort4 r0, GPORT_adr
@@ -232,42 +268,19 @@ bit4mode:
         str r10, [r11]
 
         mov r6, #100
-        mdelay r6, tmAddress_adr
+        udelay r6, tmAddress_adr
 
 clear1:
-        mov r0, CLEAR
-        lsr r0, #4
-        bl _write4bits
+        sendCmd CLEAR
 
-        mov r6, #10
+        mov r6, #500
         mdelay r6, tmAddress_adr
 
-        bl _pulseEnable
+comandos:
+        sendCmd D1C1B1
 
-        mov r6, #100
+        mov r6, #500
         mdelay r6, tmAddress_adr
-
-        mov r0, CLEAR
-        lsr r0, #4
-        bl _clean4bits
-        
-
-
-
-        mov r0, CLEAR
-        bl _write4bits
-
-        mov r6, #10
-        mdelay r6, tmAddress_adr
-
-        bl _pulseEnable
-
-        mov r6, #100
-        mdelay r6, tmAddress_adr
-
-        mov r0, CLEAR
-        bl _clean4bits
-
 
 
 @ fim de programa
