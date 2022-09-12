@@ -136,6 +136,22 @@ setmode:
         mov r7, #1000
         mdelay r7, tmAddress_adr
         
+clearlcd:
+
+        mov r0, CLEAR
+        lsr r0, #4
+        _mapbitsToPort4 r0, GPORT_adr
+        ldr r12, gpioAddress_adr
+        ldr r12, [r12]
+        ldr r11, CLEANMASK
+        str r11, [r12, GPCLR0]
+        ldr r11, GPORT_adr
+        ldr r11, [r11]
+        str r11, [r12, GPSET0]
+        enpulse tmAddress_adr, gpioAddress_adr
+        @ mov r7, #1000
+        @ mdelay r7, tmAddress_adr
+        
         @ mov r0, 0b00111000
         @ lsr r0, #4
         @ _mapbitsToPort4 r0, GPORT_adr
