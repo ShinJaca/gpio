@@ -179,14 +179,14 @@ device:
 .macro enpulse timer_adr, gpio_adr
         mov r10, #1
         lsl r10, EN             @ posição do pino enable
-        ldr r11, \gpio_adr
-        ldr r11, [r11]          @ endereço base dos GPIO
+        ldr r6, \gpio_adr
+        ldr r6, [r6]          @ endereço base dos GPIO
         mov r12, #1
-        str r10, [r11, GPCLR0]  @ Clear ENABLE
+        str r10, [r6, GPCLR0]  @ Clear ENABLE
         udelay r12, \timer_adr   @ espera 1ms
-        str r10, [r11, GPSET0] @ Clear ENABLE
+        str r10, [r6, GPSET0] @ Clear ENABLE
         udelay r12, \timer_adr   @ espera 1ms
-        str r10, [r11, GPCLR0] @ Clear ENABLE
+        str r10, [r6, GPCLR0] @ Clear ENABLE
         mov r12, #100
         udelay r12, \timer_adr   @espera 100ms para o comando ser interpretado
 

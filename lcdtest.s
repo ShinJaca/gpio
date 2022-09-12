@@ -91,9 +91,10 @@ gpioconfig:     @ configuração de modo dos GPIOs
         @ Gpios do banco GPFSEL1
         _setreg GPORT_adr, REGMASK, OUTMODE, FSEL12
         _setreg GPORT_adr, REGMASK, OUTMODE, FSEL16
-
+        
         ldr r0, gpioAddress_adr
-        ldr r0, [r0]                    @ Endereço base dos perif
+        ldr r0, [r0]
+        mov r6, r0
         ldr r1, GPORT_adr
         ldr r1, [r1]                    @ Valor configurado da porta
         str r1, [r0, GPFSEL1]                    @ Salva no registrador
@@ -102,54 +103,104 @@ gpioconfig:     @ configuração de modo dos GPIOs
         mov r1, 0
         str r1, [r0]
 
+        ldr r0, =CLEANMASK
+        str r0, [r6, GPCLR0]
+
 setmode:
-        mov r0, STMODE
+        mov r0, CLEAR
         _mapbitsToPort4 r0, GPORT_adr
         ldr r12, gpioAddress_adr
         ldr r12, [r12]
-        ldr r11, CLEANMASK
-        str r11, [r12, GPCLR0]
         ldr r11, GPORT_adr
         ldr r11, [r11]
         str r11, [r12, GPSET0]
-        enpulse tmAddress_adr, gpioAddress_adr
-        mov r7, #5
-        mdelay r7, tmAddress_adr
 
-        enpulse tmAddress_adr, gpioAddress_adr
-        mdelay r7, tmAddress_adr
+pulse:
+        mov r6, #10
+        mdelay r6, tmAddress_adr
 
-        enpulse tmAddress_adr, gpioAddress_adr
-        mov r7, #150
-        udelay r7, tmAddress_adr
-
-        mov r0, B4MODE
-        _mapbitsToPort4 r0, GPORT_adr
+        mov r10, 0x100
         ldr r12, gpioAddress_adr
         ldr r12, [r12]
-        ldr r11, CLEANMASK
-        str r11, [r12, GPCLR0]
-        ldr r11, GPORT_adr
-        ldr r11, [r11]
-        str r11, [r12, GPSET0]
-        enpulse tmAddress_adr, gpioAddress_adr
-        mov r7, #1000
-        mdelay r7, tmAddress_adr
-        
-clearlcd:
+        str r10, [r12, GPCLR0]
+
+        mdelay r6, tmAddress_adr
+
+        mov r10, 0x100
+        ldr r12, gpioAddress_adr
+        ldr r12, [r12]
+        str r10, [r12, GPSET0]
+
+        mdelay r6, tmAddress_adr
+
+        mov r10, 0x100
+        ldr r12, gpioAddress_adr
+        ldr r12, [r12]
+        str r10, [r12, GPCLR0]
+
+        mov r6, #100
+        mdelay r6, tmAddress_adr
+
+
 
         mov r0, CLEAR
-        lsr r0, #4
         _mapbitsToPort4 r0, GPORT_adr
         ldr r12, gpioAddress_adr
         ldr r12, [r12]
-        ldr r11, CLEANMASK
-        str r11, [r12, GPCLR0]
         ldr r11, GPORT_adr
         ldr r11, [r11]
-        str r11, [r12, GPSET0]
-        enpulse tmAddress_adr, gpioAddress_adr
-        @ mov r7, #1000
+        str r11, [r12, GPCLR0]
+
+@ m1:
+@         mov r10, #1
+@         lsl r10, EN             @ posição do pino enable
+@         ldr r6, gpioAddress_adr
+@         ldr r6, [r6]          @ endereço base dos GPIO
+@         mov r12, #1
+@         str r10, [r6, GPCLR0]  @ Clear ENABLE
+@         mdelay r12, tmAddress_adr   @ espera 1ms
+@         str r10, [r6, GPSET0] @ Clear ENABLE
+@         mdelay r12, tmAddress_adr   @ espera 1ms
+@         str r10, [r6, GPCLR0] @ Clear ENABLE
+@         mov r12, #100
+@         mdelay r12, tmAddress_adr   @espera 100ms para o comando ser interpretado
+        @ enpulse tmAddress_adr, gpioAddress_adr
+@         mov r7, #5
+@         mdelay r7, tmAddress_adr
+
+@         enpulse tmAddress_adr, gpioAddress_adr
+@         mdelay r7, tmAddress_adr
+
+@         enpulse tmAddress_adr, gpioAddress_adr
+@         mov r7, #150
+@         udelay r7, tmAddress_adr
+@         mov r0, B4MODE
+@         _mapbitsToPort4 r0, GPORT_adr
+@         ldr r12, gpioAddress_adr
+@         ldr r12, [r12]
+@         ldr r11, =CLEANMASK
+@         str r11, [r12, GPCLR0]
+@         ldr r11, GPORT_adr
+@         ldr r11, [r11]
+@         str r11, [r12, GPSET0]
+@         enpulse tmAddress_adr, gpioAddress_adr
+@         mov r7, #1000
+@         mdelay r7, tmAddress_adr
+        
+@ clearlcd:
+
+@         mov r0, CLEAR
+@         lsr r0, #4
+@         _mapbitsToPort4 r0, GPORT_adr
+@         ldr r12, gpioAddress_adr
+@         ldr r12, [r12]
+@         ldr r11, =CLEANMASK
+@         str r11, [r12, GPCLR0]
+@         ldr r11, GPORT_adr
+@         ldr r11, [r11]
+@         str r11, [r12, GPSET0]
+@         enpulse tmAddress_adr, gpioAddress_adr
+@         @ mov r7, #1000
         @ mdelay r7, tmAddress_adr
         
         @ mov r0, 0b00111000
