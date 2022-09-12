@@ -163,6 +163,34 @@ device:
         blt \@b
 .endm
 
+.macro udelay msec, timer_adr
+        ldr r10, \timer_adr
+        ldr r10, [r10]          @ endereço do timer
+        mov r9, \msec
+        ldr r11, [r10, TCLO]    @ momento inicial
+\@:     
+        ldr r12, [r10, TCLO]
+        sub r12, r12, r11
+        cmp r12, r9
+        blt \@b
+.endm
+
+
+.macro enpulse timer_adr, gpio_adr
+        mov r10, #1
+        lsl r10, EN             @ posição do pino enable
+        ldr r11, \gpio_adr
+        ldr r11, [r11]          @ endereço base dos GPIO
+        mov r12, #1
+        str r10, [r11, GPCLR0]  @ Clear ENABLE
+        udelay r12, \timer_adr   @ espera 1ms
+        str r10, [r11, GPSET0] @ Clear ENABLE
+        udelay r12, \timer_adr   @ espera 1ms
+        str r10, [r11, GPCLR0] @ Clear ENABLE
+        mov r12, #100
+        udelay r12, \timer_adr   @espera 100ms para o comando ser interpretado
+
+.endm
 
 
 deviceAddr:

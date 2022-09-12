@@ -30,7 +30,7 @@
 
         .equ    INTERVALO, 5000
 
-        .equ    CLEANMASK, 0x311000
+        .equ    CLEANMASK, 0x2311000
 
 
 @ Constant program data
@@ -103,75 +103,93 @@ gpioconfig:     @ configuração de modo dos GPIOs
         str r1, [r0]
 
 setmode:
-        mov r0, 0b00111000
-        lsr r0, #4
+        mov r0, STMODE
         _mapbitsToPort4 r0, GPORT_adr
-
-        ldr r0, gpioAddress_adr
-        ldr r0, [r0]                    @ GPIO base endereço
-        ldr r1, GPORT_adr
-        ldr r1, [r1]                    @ Valor da porta atual
-        mov r2, #1
-        mov r2, r2, lsl EN              @ Mascara do pino ENABLE
-        orr r1, r1, r2
-        str r1, [r0, GPSET0]            @ Primeiro nimble
-        mov r7, #10
+        ldr r12, gpioAddress_adr
+        ldr r12, [r12]
+        ldr r11, CLEANMASK
+        str r11, [r12, GPCLR0]
+        ldr r11, GPORT_adr
+        ldr r11, [r11]
+        str r11, [r12, GPSET0]
+        enpulse tmAddress_adr, gpioAddress_adr
+        mov r7, #5
         mdelay r7, tmAddress_adr
-        str r2, [r0, GPCLR0]            @ Limpa enable
+
+        _mapbitsToPort4 r0, GPORT_adr
+        ldr r12, gpioAddress_adr
+        ldr r12, [r12]
+        ldr r11, CLEANMASK
+        str r11, [r12, GPCLR0]
+        ldr r11, GPORT_adr
+        ldr r11, [r11]
+        str r11, [r12, GPSET0]
+        enpulse tmAddress_adr, gpioAddress_adr
+        mdelay r7, tmAddress_adr
+
+        _mapbitsToPort4 r0, GPORT_adr
+        ldr r12, gpioAddress_adr
+        ldr r12, [r12]
+        ldr r11, CLEANMASK
+        str r11, [r12, GPCLR0]
+        ldr r11, GPORT_adr
+        ldr r11, [r11]
+        str r11, [r12, GPSET0]
+        enpulse tmAddress_adr, gpioAddress_adr
+        mov r7, #150
+        udelay r7, tmAddress_adr
+
+        mov r0, B4MODE
+        _mapbitsToPort4 r0, GPORT_adr
+        ldr r12, gpioAddress_adr
+        ldr r12, [r12]
+        ldr r11, CLEANMASK
+        str r11, [r12, GPCLR0]
+        ldr r11, GPORT_adr
+        ldr r11, [r11]
+        str r11, [r12, GPSET0]
+        enpulse tmAddress_adr, gpioAddress_adr
+        mov r7, #1000
+        mdelay r7, tmAddress_adr
         
-        mov r0, 0b1000
-        _mapbitsToPort4 r0, GPORT_adr
+        @ mov r0, 0b00111000
+        @ lsr r0, #4
+        @ _mapbitsToPort4 r0, GPORT_adr
 
-        mdelay r7, tmAddress_adr
-
-        ldr r0, gpioAddress_adr
-        ldr r0, [r0]                    @ GPIO base endereço
-        ldr r1, GPORT_adr
-        ldr r1, [r1]                    @ Valor da porta atual
-        mov r2, #1
-        mov r2, r2, lsl EN              @ Mascara do pino ENABLE
-        orr r1, r1, r2
-        str r1, [r0, GPSET0]            @ Primeiro nimble
-        mov r7, #10
-        mdelay r7, tmAddress_adr
-        str r2, [r0, GPCLR0]            @ Limpa enable
-
-        mov r7, #50
-        mdelay r7, tmAddress_adr
-
-cleard:
-        mov r0, CLEAR
-        lsr r0, #4
-        _mapbitsToPort4 r0, GPORT_adr
-
-        ldr r0, gpioAddress_adr
-        ldr r0, [r0]                    @ GPIO base endereço
-        ldr r1, GPORT_adr
-        ldr r1, [r1]                    @ Valor da porta atual
-        mov r2, #1
-        mov r2, r2, lsl EN              @ Mascara do pino ENABLE
-        orr r1, r1, r2
-        str r1, [r0, GPSET0]            @ Primeiro nimble
-        mov r7, #10
-        mdelay r7, tmAddress_adr
-        str r2, [r0, GPCLR0]            @ Limpa enable
+        @ ldr r0, gpioAddress_adr
+        @ ldr r0, [r0]                    @ GPIO base endereço
+        @ ldr r1, GPORT_adr
+        @ ldr r1, [r1]                    @ Valor da porta atual
+        @ mov r2, #1
+        @ mov r2, r2, lsl EN              @ Mascara do pino ENABLE
+        @ orr r1, r1, r2
+        @ str r1, [r0, GPSET0]            @ Primeiro nimble
+        @ mov r7, #10
+        @ mdelay r7, tmAddress_adr
+        @ str r2, [r0, GPCLR0]            @ Limpa enable
         
-        mov r0, CLEAR
-        _mapbitsToPort4 r0, GPORT_adr
+        @ mov r7, #100
+        @ mdelay r7, tmAddress_adr
 
-        mdelay r7, tmAddress_adr
+        @ mov r0, 0b1000
+        @ _mapbitsToPort4 r0, GPORT_adr
 
-        ldr r0, gpioAddress_adr
-        ldr r0, [r0]                    @ GPIO base endereço
-        ldr r1, GPORT_adr
-        ldr r1, [r1]                    @ Valor da porta atual
-        mov r2, #1
-        mov r2, r2, lsl EN              @ Mascara do pino ENABLE
-        orr r1, r1, r2
-        str r1, [r0, GPSET0]            @ Primeiro nimble
-        mov r7, #10
-        mdelay r7, tmAddress_adr
-        str r2, [r0, GPCLR0]            @ Limpa enable
+        @ ldr r0, gpioAddress_adr
+        @ ldr r0, [r0]                    @ GPIO base endereço
+        @ ldr r1, GPORT_adr
+        @ ldr r1, [r1]                    @ Valor da porta atual
+        @ mov r2, #1
+        @ mov r2, r2, lsl EN              @ Mascara do pino ENABLE
+        @ orr r1, r1, r2
+        @ str r1, [r0, GPSET0]            @ Primeiro nimble
+        @ mov r7, #10
+        @ mdelay r7, tmAddress_adr
+        @ str r2, [r0, GPCLR0]            @ Limpa enable
+
+        @ mov r7, #50
+        @ mdelay r7, tmAddress_adr
+
+
 
         mov     r0, 0           @ return 0;
         add     sp, sp, STACK_ARGS  @ fix sp

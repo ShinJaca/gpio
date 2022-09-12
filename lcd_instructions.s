@@ -1,6 +1,8 @@
 
 .syntax unified
 
+.equ    STMODE, 0x03
+.equ    B4MODE, 0x02
 .equ    CLEAR,  0b00000001
 .equ    HOME,   0b00000010
 .equ    SHFTL,  0b00000111
