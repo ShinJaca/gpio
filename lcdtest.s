@@ -107,7 +107,7 @@ gpioconfig:     @ configuração de modo dos GPIOs
         str r0, [r6, GPCLR0]
 
 setmode:
-        mov r0, CLEAR
+        mov r0, STMODE
         _mapbitsToPort4 r0, GPORT_adr
         ldr r12, gpioAddress_adr
         ldr r12, [r12]
@@ -115,7 +115,6 @@ setmode:
         ldr r11, [r11]
         str r11, [r12, GPSET0]
 
-pulse:
         mov r6, #10
         mdelay r6, tmAddress_adr
 
@@ -141,6 +140,214 @@ pulse:
         mov r6, #100
         mdelay r6, tmAddress_adr
 
+        mov r0, STMODE
+        _mapbitsToPort4 r0, GPORT_adr
+        ldr r12, gpioAddress_adr
+        ldr r12, [r12]
+        ldr r11, GPORT_adr
+        ldr r11, [r11]
+        str r11, [r12, GPCLR0]
+        ldr r11, GPORT_adr
+        mov r10, #0
+        str r10, [r11]
+
+        mov r6, #100
+        mdelay r6, tmAddress_adr
+
+setmode1:
+        mov r0, STMODE
+        _mapbitsToPort4 r0, GPORT_adr
+        ldr r12, gpioAddress_adr
+        ldr r12, [r12]
+        ldr r11, GPORT_adr
+        ldr r11, [r11]
+        str r11, [r12, GPSET0]
+
+        mov r6, #10
+        mdelay r6, tmAddress_adr
+
+        mov r10, 0x100
+        ldr r12, gpioAddress_adr
+        ldr r12, [r12]
+        str r10, [r12, GPCLR0]
+
+        mdelay r6, tmAddress_adr
+
+        mov r10, 0x100
+        ldr r12, gpioAddress_adr
+        ldr r12, [r12]
+        str r10, [r12, GPSET0]
+
+        mdelay r6, tmAddress_adr
+
+        mov r10, 0x100
+        ldr r12, gpioAddress_adr
+        ldr r12, [r12]
+        str r10, [r12, GPCLR0]
+
+        mov r6, #100
+        mdelay r6, tmAddress_adr
+
+        mov r0, STMODE
+        _mapbitsToPort4 r0, GPORT_adr
+        ldr r12, gpioAddress_adr
+        ldr r12, [r12]
+        ldr r11, GPORT_adr
+        ldr r11, [r11]
+        str r11, [r12, GPCLR0]
+        ldr r11, GPORT_adr
+        mov r10, #0
+        str r10, [r11]
+
+        mov r6, #100
+        mdelay r6, tmAddress_adr
+
+setmode2:
+        mov r0, STMODE
+        _mapbitsToPort4 r0, GPORT_adr
+        ldr r12, gpioAddress_adr
+        ldr r12, [r12]
+        ldr r11, GPORT_adr
+        ldr r11, [r11]
+        str r11, [r12, GPSET0]
+
+        mov r6, #10
+        mdelay r6, tmAddress_adr
+
+        mov r10, 0x100
+        ldr r12, gpioAddress_adr
+        ldr r12, [r12]
+        str r10, [r12, GPCLR0]
+
+        mdelay r6, tmAddress_adr
+
+        mov r10, 0x100
+        ldr r12, gpioAddress_adr
+        ldr r12, [r12]
+        str r10, [r12, GPSET0]
+
+        mdelay r6, tmAddress_adr
+
+        mov r10, 0x100
+        ldr r12, gpioAddress_adr
+        ldr r12, [r12]
+        str r10, [r12, GPCLR0]
+
+        mov r6, #100
+        mdelay r6, tmAddress_adr
+
+        mov r0, STMODE
+        _mapbitsToPort4 r0, GPORT_adr
+        ldr r12, gpioAddress_adr
+        ldr r12, [r12]
+        ldr r11, GPORT_adr
+        ldr r11, [r11]
+        str r11, [r12, GPCLR0]
+        ldr r11, GPORT_adr
+        mov r10, #0
+        str r10, [r11]
+
+
+        mov r6, #100
+        mdelay r6, tmAddress_adr
+
+bit4mode:
+        mov r0, B4MODE
+        _mapbitsToPort4 r0, GPORT_adr
+        ldr r12, gpioAddress_adr
+        ldr r12, [r12]
+        ldr r11, GPORT_adr
+        ldr r11, [r11]
+        str r11, [r12, GPSET0]
+
+        mov r6, #10
+        mdelay r6, tmAddress_adr
+
+        mov r10, 0x100
+        ldr r12, gpioAddress_adr
+        ldr r12, [r12]
+        str r10, [r12, GPCLR0]
+
+        mdelay r6, tmAddress_adr
+
+        mov r10, 0x100
+        ldr r12, gpioAddress_adr
+        ldr r12, [r12]
+        str r10, [r12, GPSET0]
+
+        mdelay r6, tmAddress_adr
+
+        mov r10, 0x100
+        ldr r12, gpioAddress_adr
+        ldr r12, [r12]
+        str r10, [r12, GPCLR0]
+
+        mov r6, #100
+        mdelay r6, tmAddress_adr
+
+        mov r0, B4MODE
+        _mapbitsToPort4 r0, GPORT_adr
+        ldr r12, gpioAddress_adr
+        ldr r12, [r12]
+        ldr r11, GPORT_adr
+        ldr r11, [r11]
+        str r11, [r12, GPCLR0]
+
+        ldr r11, GPORT_adr
+        mov r10, #0
+        str r10, [r11]
+
+        mov r6, #100
+        mdelay r6, tmAddress_adr
+
+clear1:
+        mov r0, CLEAR
+        lsr r0, #4
+        _mapbitsToPort4 r0, GPORT_adr
+        ldr r12, gpioAddress_adr
+        ldr r12, [r12]
+        ldr r11, GPORT_adr
+        ldr r11, [r11]
+        str r11, [r12, GPSET0]
+
+        mov r6, #10
+        mdelay r6, tmAddress_adr
+
+        mov r10, 0x100
+        ldr r12, gpioAddress_adr
+        ldr r12, [r12]
+        str r10, [r12, GPCLR0]
+
+        mdelay r6, tmAddress_adr
+
+        mov r10, 0x100
+        ldr r12, gpioAddress_adr
+        ldr r12, [r12]
+        str r10, [r12, GPSET0]
+
+        mdelay r6, tmAddress_adr
+
+        mov r10, 0x100
+        ldr r12, gpioAddress_adr
+        ldr r12, [r12]
+        str r10, [r12, GPCLR0]
+
+        mov r6, #100
+        mdelay r6, tmAddress_adr
+
+        mov r0, CLEAR
+        lsr r0, #4
+        _mapbitsToPort4 r0, GPORT_adr
+        ldr r12, gpioAddress_adr
+        ldr r12, [r12]
+        ldr r11, GPORT_adr
+        ldr r11, [r11]
+        str r11, [r12, GPCLR0]
+        ldr r11, GPORT_adr
+        mov r10, #0
+        str r10, [r11]
+        
+
 
 
         mov r0, CLEAR
@@ -149,7 +356,43 @@ pulse:
         ldr r12, [r12]
         ldr r11, GPORT_adr
         ldr r11, [r11]
+        str r11, [r12, GPSET0]
+
+        mov r6, #10
+        mdelay r6, tmAddress_adr
+
+        mov r10, 0x100
+        ldr r12, gpioAddress_adr
+        ldr r12, [r12]
+        str r10, [r12, GPCLR0]
+
+        mdelay r6, tmAddress_adr
+
+        mov r10, 0x100
+        ldr r12, gpioAddress_adr
+        ldr r12, [r12]
+        str r10, [r12, GPSET0]
+
+        mdelay r6, tmAddress_adr
+
+        mov r10, 0x100
+        ldr r12, gpioAddress_adr
+        ldr r12, [r12]
+        str r10, [r12, GPCLR0]
+
+        mov r6, #100
+        mdelay r6, tmAddress_adr
+
+        mov r0, CLEAR
+        _mapbitsToPort4 r0, GPORT_adr
+        ldr r12, gpioAddress_adr
+        ldr r12, [r12]
+        ldr r11, GPORT_adr
+        ldr r11, [r11]
         str r11, [r12, GPCLR0]
+        ldr r11, GPORT_adr
+        mov r10, #0
+        str r10, [r11]
 
 @ m1:
 @         mov r10, #1
