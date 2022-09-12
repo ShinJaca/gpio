@@ -30,7 +30,7 @@
 
         .equ    INTERVALO, 5000
 
-        .equ    CLEANMASK, 0x231100
+        .equ    CLEANMASK, 0x2311100
 
 
 @ Constant program data
