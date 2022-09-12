@@ -270,18 +270,30 @@ bit4mode:
         mov r6, #100
         udelay r6, tmAddress_adr
 
+
+
 clear1:
+        sendCmd B42LINE
+        mov r6, #500
+        mdelay r6, tmAddress_adr
+
         sendCmd CLEAR
 
         mov r6, #500
         mdelay r6, tmAddress_adr
 
 comandos:
-        sendCmd D1C1B1
+        sendCmd D1C1B0
 
         mov r6, #500
         mdelay r6, tmAddress_adr
 
+        sendCmd CSHFTR
+
+        mov r6, #2000
+        mdelay r6, tmAddress_adr
+
+        sendCmd CSHFTL
 
 @ fim de programa
         mov     r0, 0           @ return 0;
