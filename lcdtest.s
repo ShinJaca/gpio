@@ -256,16 +256,7 @@ bit4mode:
         udelay r6, tmAddress_adr
 
         mov r0, B4MODE
-        _mapbitsToPort4 r0, GPORT_adr
-        ldr r12, gpioAddress_adr
-        ldr r12, [r12]
-        ldr r11, GPORT_adr
-        ldr r11, [r11]
-        str r11, [r12, GPCLR0]
-
-        ldr r11, GPORT_adr
-        mov r10, #0
-        str r10, [r11]
+        bl _clean4bits
 
         mov r6, #100
         udelay r6, tmAddress_adr
