@@ -348,7 +348,15 @@ comandos:
 
         mov r6, #500
         mdelay r6, tmAddress_adr
-
+        sendCmd CSHFTR
+        mov r6, #500
+        mdelay r6, tmAddress_adr
+        sendCmd CSHFTR
+        mov r6, #500
+        mdelay r6, tmAddress_adr
+        sendCmd CSHFTR
+        mov r6, #500
+        mdelay r6, tmAddress_adr
         sendCmd CSHFTR
         mov r6, #500
         mdelay r6, tmAddress_adr
@@ -378,6 +386,7 @@ comandos:
         ldr r0, [r0]
         mov r1, RSPIN
         str r1, [r0, GPCLR0]
+
 
         
 @ fim de programa
