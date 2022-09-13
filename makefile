@@ -1,4 +1,4 @@
-all: ioset ioclr memmap clean
+all: lcdtest clean
 
 # Executáveis
 
