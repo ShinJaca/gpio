@@ -90,6 +90,26 @@ _clean4bits:
 
         bx lr
 
+_setmode8:
+        mov r0, STMODE
+        bl _write4bits
+
+        mov r6, #10
+        udelay r6, tmAddress_adr
+
+        bl _pulseEnable
+
+        mov r6, #30
+        udelay r6, tmAddress_adr
+
+        mov r0, STMODE
+        bl _clean4bits
+
+        mov r6, #4500
+        udelay r6, tmAddress_adr
+
+        bx lr
+
 
 .macro sendCmd CMD
         @ Primeiro os bits altos
@@ -239,59 +259,13 @@ gpioconfig:     @ configuração de modo dos GPIOs
         str r0, [r6, GPCLR0]
 
 setmode:
-        mov r0, STMODE
-        bl _write4bits
-
-        mov r6, #10
-        udelay r6, tmAddress_adr
-
-        bl _pulseEnable
-
-        mov r6, #100
-        udelay r6, tmAddress_adr
-
-        mov r0, STMODE
-        bl _clean4bits
-
-        mov r6, #100
-        udelay r6, tmAddress_adr
+        bl _setmode8
 
 setmode1:
-        mov r0, STMODE
-        bl _write4bits
-
-        mov r6, #10
-        udelay r6, tmAddress_adr
-
-        bl _pulseEnable
-
-        mov r6, #100
-        udelay r6, tmAddress_adr
-
-        mov r0, STMODE
-        bl _clean4bits
-
-        mov r6, #100
-        udelay r6, tmAddress_adr
+        bl _setmode8
 
 setmode2:
-        mov r0, STMODE
-        bl _write4bits
-
-        mov r6, #10
-        udelay r6, tmAddress_adr
-
-        bl _pulseEnable
-
-        mov r6, #100
-        udelay r6, tmAddress_adr
-
-        mov r0, STMODE
-        bl _clean4bits
-
-
-        mov r6, #100
-        udelay r6, tmAddress_adr
+        bl _setmode8
 
 bit4mode:
         mov r0, B4MODE
