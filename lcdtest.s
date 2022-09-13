@@ -122,6 +122,52 @@ _clean4bits:
         bl _clean4bits
 .endm
 
+.macro sendData CMD
+
+        ldr r0, gpioAddress_adr
+        ldr r0, [r0]
+        mov r1, 0x2000000
+        str r1, [r0, GPSET0]
+
+        @ Primeiro os bits altos
+        mov r0, \CMD
+        lsr r0, #4
+        bl _write4bits
+
+        mov r6, #10
+        udelay r6, tmAddress_adr
+
+        bl _pulseEnable
+
+        mov r6, #100
+        udelay r6, tmAddress_adr
+
+        mov r0, \CMD
+        lsr r0, #4
+        bl _clean4bits
+        
+        
+        @ Segundo os bits baixos
+        mov r0, \CMD
+        bl _write4bits
+
+        mov r6, #10
+        udelay r6, tmAddress_adr
+
+        bl _pulseEnable
+
+        mov r6, #100
+        udelay r6, tmAddress_adr
+
+        mov r0, \CMD
+        bl _clean4bits
+
+        ldr r0, gpioAddress_adr
+        ldr r0, [r0]
+        mov r1, 0x2000000
+        str r1, [r0, GPCLR0]
+.endm
+
 
         .global main
         .type   main, %function
@@ -281,11 +327,25 @@ comandos:
 
         sendCmd CSHFTR
 
-        mov r6, #2000
+        mov r6, #500
+        mdelay r6, tmAddress_adr
+        
+        
+        sendData 0x4A
+        mov r6, #50
         mdelay r6, tmAddress_adr
 
-        sendCmd CSHFTL
+        sendData 0x41
+        mov r6, #50
+        mdelay r6, tmAddress_adr
+        
+        sendData 0x43
+        mov r6, #50
+        mdelay r6, tmAddress_adr
+        
+        sendData 0x41
 
+        
 @ fim de programa
         mov     r0, 0           @ return 0;
         add     sp, sp, STACK_ARGS  @ fix sp
@@ -303,11 +363,13 @@ fileDescriptor_adr:     .word fileDescriptor
 gpioAddress_adr:        .word gpioAddress
 tmAddress_adr:          .word tmAddress
 GPORT_adr:              .word GPORT             @ Armazena os bits antes de enviar
+LTR_A_adr:               .word LTR_A
 
 .data
         fileDescriptor: .word 0
         gpioAddress:    .word 0
         tmAddress:      .word 0
         GPORT:          .word 0
+        LTR_A:          .ascii "A"
 
 

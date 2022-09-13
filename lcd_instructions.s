@@ -18,4 +18,4 @@
 
 .equ    CGADDR, 0x01000000  @ Set address MASK
 
-
+.equ    CHARA, 0x41
