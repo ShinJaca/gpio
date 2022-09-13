@@ -99,7 +99,7 @@ _setmode8:
 
         bl _pulseEnable
 
-        mov r6, #30
+        mov r6, #10
         udelay r6, tmAddress_adr
 
         mov r0, STMODE
@@ -163,7 +163,7 @@ _setmode8:
 
         bl _pulseEnable
 
-        mov r6, #30
+        mov r6, #10
         udelay r6, tmAddress_adr
 
         mov r0, \CMD
@@ -180,7 +180,7 @@ _setmode8:
 
         bl _pulseEnable
 
-        mov r6, #30
+        mov r6, #10
         udelay r6, tmAddress_adr
 
         mov r0, \CMD
@@ -267,13 +267,13 @@ setmode:
 
         bl _pulseEnable
 
-        mov r6, #100
+        mov r6, #10
         udelay r6, tmAddress_adr
 
         mov r0, STMODE
         bl _clean4bits
 
-        mov r6, #100
+        mov r6, #4500
         udelay r6, tmAddress_adr
 
 setmode1:
@@ -285,13 +285,13 @@ setmode1:
 
         bl _pulseEnable
 
-        mov r6, #100
+        mov r6, #10
         udelay r6, tmAddress_adr
 
         mov r0, STMODE
         bl _clean4bits
 
-        mov r6, #100
+        mov r6, #4500
         udelay r6, tmAddress_adr
 
 setmode2:
@@ -303,14 +303,14 @@ setmode2:
 
         bl _pulseEnable
 
-        mov r6, #100
+        mov r6, #10
         udelay r6, tmAddress_adr
 
         mov r0, STMODE
         bl _clean4bits
 
 
-        mov r6, #100
+        mov r6, #4500
         udelay r6, tmAddress_adr
 
 bit4mode:
@@ -322,7 +322,7 @@ bit4mode:
 
         bl _pulseEnable
 
-        mov r6, #100
+        mov r6, #10
         udelay r6, tmAddress_adr
 
         mov r0, B4MODE
@@ -349,30 +349,35 @@ comandos:
         mov r6, #500
         mdelay r6, tmAddress_adr
 
-        sendCmd SHFTR
-
-        mov r6, #500
-        mdelay r6, tmAddress_adr
-
         sendCmd CSHFTR
-
         mov r6, #500
         mdelay r6, tmAddress_adr
+
+        ldr r0, gpioAddress_adr
+        ldr r0, [r0]
+        mov r1, RSPIN
+        str r1, [r0, GPSET0]
         
-        
-        sendData 0x4A
-        mov r6, #50
-        mdelay r6, tmAddress_adr
+        sendCmd 0x4A
+        mov r6, #500
+        udelay r6, tmAddress_adr
+
+        sendCmd 0x41
+        mov r6, #500
+        udelay r6, tmAddress_adr
+
+        sendCmd 0x43
+        mov r6, #500
+        udelay r6, tmAddress_adr
 
         sendData 0x41
-        mov r6, #50
-        mdelay r6, tmAddress_adr
-        
-        sendData 0x43
-        mov r6, #50
-        mdelay r6, tmAddress_adr
-        
-        sendData 0x41
+        mov r6, #500
+        udelay r6, tmAddress_adr
+
+        ldr r0, gpioAddress_adr
+        ldr r0, [r0]
+        mov r1, RSPIN
+        str r1, [r0, GPCLR0]
 
         
 @ fim de programa
