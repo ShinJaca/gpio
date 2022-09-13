@@ -28,7 +28,11 @@
         .equ    RS,     25
         .equ    EN,     8
 
+        .equ    ENPIN,  0x100
+        .equ    RSPIN,  0x2000000
+
         .equ    INTERVALO, 5000
+        .equ    PULSEINT, 10
 
         .equ    CLEANMASK, 0x2311100
 
@@ -42,21 +46,21 @@
         .text
         .align  2
 _pulseEnable:
-        mov r10, 0x100
+        mov r10, ENPIN
         ldr r12, gpioAddress_adr
         ldr r12, [r12]
         str r10, [r12, GPCLR0]
 
-        udelay r6, tmAddress_adr
+        udelay PULSEINT, tmAddress_adr
 
-        mov r10, 0x100
+        mov r10, ENPIN
         ldr r12, gpioAddress_adr
         ldr r12, [r12]
         str r10, [r12, GPSET0]
 
-        udelay r6, tmAddress_adr
+        udelay PULSEINT, tmAddress_adr
 
-        mov r10, 0x100
+        mov r10, ENPIN
         ldr r12, gpioAddress_adr
         ldr r12, [r12]
         str r10, [r12, GPCLR0]
@@ -83,6 +87,26 @@ _clean4bits:
         ldr r11, GPORT_adr
         mov r10, #0
         str r10, [r11]
+
+        bx lr
+
+_setmode8:
+        mov r0, STMODE
+        bl _write4bits
+
+        mov r6, #10
+        udelay r6, tmAddress_adr
+
+        bl _pulseEnable
+
+        mov r6, #30
+        udelay r6, tmAddress_adr
+
+        mov r0, STMODE
+        bl _clean4bits
+
+        mov r6, #4500
+        udelay r6, tmAddress_adr
 
         bx lr
 
@@ -126,7 +150,7 @@ _clean4bits:
 
         ldr r0, gpioAddress_adr
         ldr r0, [r0]
-        mov r1, 0x2000000
+        mov r1, RSPIN
         str r1, [r0, GPSET0]
 
         @ Primeiro os bits altos
@@ -139,7 +163,7 @@ _clean4bits:
 
         bl _pulseEnable
 
-        mov r6, #100
+        mov r6, #30
         udelay r6, tmAddress_adr
 
         mov r0, \CMD
@@ -156,7 +180,7 @@ _clean4bits:
 
         bl _pulseEnable
 
-        mov r6, #100
+        mov r6, #30
         udelay r6, tmAddress_adr
 
         mov r0, \CMD
@@ -164,7 +188,7 @@ _clean4bits:
 
         ldr r0, gpioAddress_adr
         ldr r0, [r0]
-        mov r1, 0x2000000
+        mov r1, RSPIN
         str r1, [r0, GPCLR0]
 .endm
 
@@ -235,59 +259,13 @@ gpioconfig:     @ configuração de modo dos GPIOs
         str r0, [r6, GPCLR0]
 
 setmode:
-        mov r0, STMODE
-        bl _write4bits
-
-        mov r6, #10
-        udelay r6, tmAddress_adr
-
-        bl _pulseEnable
-
-        mov r6, #100
-        udelay r6, tmAddress_adr
-
-        mov r0, STMODE
-        bl _clean4bits
-
-        mov r6, #100
-        udelay r6, tmAddress_adr
+        bl _setmode8
 
 setmode1:
-        mov r0, STMODE
-        bl _write4bits
-
-        mov r6, #10
-        udelay r6, tmAddress_adr
-
-        bl _pulseEnable
-
-        mov r6, #100
-        udelay r6, tmAddress_adr
-
-        mov r0, STMODE
-        bl _clean4bits
-
-        mov r6, #100
-        udelay r6, tmAddress_adr
+        bl _setmode8
 
 setmode2:
-        mov r0, STMODE
-        bl _write4bits
-
-        mov r6, #10
-        udelay r6, tmAddress_adr
-
-        bl _pulseEnable
-
-        mov r6, #100
-        udelay r6, tmAddress_adr
-
-        mov r0, STMODE
-        bl _clean4bits
-
-
-        mov r6, #100
-        udelay r6, tmAddress_adr
+        bl _setmode8
 
 bit4mode:
         mov r0, B4MODE
@@ -304,7 +282,7 @@ bit4mode:
         mov r0, B4MODE
         bl _clean4bits
 
-        mov r6, #100
+        mov r6, #150
         udelay r6, tmAddress_adr
 
 
