@@ -1,6 +1,7 @@
 .vscode
 ioclr
 ioset
+lcdtest
 memmap
 teste
 *.bkp

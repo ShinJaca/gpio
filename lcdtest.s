@@ -259,13 +259,59 @@ gpioconfig:     @ configuração de modo dos GPIOs
         str r0, [r6, GPCLR0]
 
 setmode:
-        bl _setmode8
+        mov r0, STMODE
+        bl _write4bits
+
+        mov r6, #10
+        udelay r6, tmAddress_adr
+
+        bl _pulseEnable
+
+        mov r6, #100
+        udelay r6, tmAddress_adr
+
+        mov r0, STMODE
+        bl _clean4bits
+
+        mov r6, #100
+        udelay r6, tmAddress_adr
 
 setmode1:
-        bl _setmode8
+        mov r0, STMODE
+        bl _write4bits
+
+        mov r6, #10
+        udelay r6, tmAddress_adr
+
+        bl _pulseEnable
+
+        mov r6, #100
+        udelay r6, tmAddress_adr
+
+        mov r0, STMODE
+        bl _clean4bits
+
+        mov r6, #100
+        udelay r6, tmAddress_adr
 
 setmode2:
-        bl _setmode8
+        mov r0, STMODE
+        bl _write4bits
+
+        mov r6, #10
+        udelay r6, tmAddress_adr
+
+        bl _pulseEnable
+
+        mov r6, #100
+        udelay r6, tmAddress_adr
+
+        mov r0, STMODE
+        bl _clean4bits
+
+
+        mov r6, #100
+        udelay r6, tmAddress_adr
 
 bit4mode:
         mov r0, B4MODE
