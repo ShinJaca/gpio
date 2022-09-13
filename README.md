@@ -1,5 +1,5 @@
 # MI - Sistemas Digitais
-## Meta 1 - Timer e pisca led
+## Meta 2 - Caractere em LCD
 
 ### Arquivos
 
