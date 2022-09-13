@@ -348,18 +348,18 @@ comandos:
 
         mov r6, #500
         mdelay r6, tmAddress_adr
-        sendCmd CSHFTR
+        sendCmd EMSLN
         mov r6, #500
         mdelay r6, tmAddress_adr
-        sendCmd CSHFTR
-        mov r6, #500
-        mdelay r6, tmAddress_adr
-        sendCmd CSHFTR
-        mov r6, #500
-        mdelay r6, tmAddress_adr
-        sendCmd CSHFTR
-        mov r6, #500
-        mdelay r6, tmAddress_adr
+        @ sendCmd CSHFTR
+        @ mov r6, #500
+        @ mdelay r6, tmAddress_adr
+        @ sendCmd CSHFTR
+        @ mov r6, #500
+        @ mdelay r6, tmAddress_adr
+        @ sendCmd CSHFTR
+        @ mov r6, #500
+        @ mdelay r6, tmAddress_adr
 
         ldr r0, gpioAddress_adr
         ldr r0, [r0]
