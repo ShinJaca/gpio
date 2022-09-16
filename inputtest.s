@@ -74,7 +74,10 @@ readin:
         ldr r0, gpioAddress_adr
         ldr r0, [r0]
 
-        ldr r1, [r0]
+        ldr r1, [r0, GPLEV0]    @ carrega os valores no registrador de nivel dos GPIO
+        mvn r2, 0b100000        @ Mascara da posição do GPIO5 ( inversa )
+        bic r1, r1, r2          @ Limpa os valores dos outros pinos restando somente o GPIO5
+
 
 
 

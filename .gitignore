@@ -2,6 +2,7 @@
 ioclr
 ioset
 lcdtest
+inputtest
 memmap
 teste
 *.bkp
