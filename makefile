@@ -35,5 +35,11 @@ lcdtest: lcdtest.o
 lcdtest.o: lcdtest.s
 	as -o $@ $<
 
+intest: inputtest clean
+inputtest: inputtest.o
+	gcc -o $@ $+
+inputtest.o: inputtest.s
+	as -o $@ $<
+
 clean:
 	rm -vf *.o
