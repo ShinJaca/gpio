@@ -8,7 +8,7 @@
 
 @ Define my Raspberry Pi
         @ .cpu    arm1176jz-s
-        .cpu    cortex-a7
+        @ .cpu    cortex-a7
         .syntax unified         @ modern syntax
 
         .equ    FSEL08, 24
@@ -27,8 +27,10 @@
         .equ    GPIO21, 21
         .equ    RS,     25
         .equ    EN,     8
+        @ .equ    EN,     1
 
         .equ    ENPIN,  0x100
+        @ .equ    ENPIN,  0x10
         .equ    RSPIN,  0x2000000
 
         .equ    INTERVALO, 5000
@@ -45,25 +47,31 @@
 @ The program
         .text
         .align  2
+
+
+.macro pinClr pinmsk
+        mov r11, \pinmsk
+        ldr r12, gpioAddress_adr
+        ldr r12, [r12]
+        str r11, [r12, GPCLR0]
+
+.endm 
+
+.macro pinSet pinmsk
+        mov r11, \pinmsk
+        ldr r12, gpioAddress_adr
+        ldr r12, [r12]
+        str r11, [r12, GPSET0]
+
+.endm 
+
+
 _pulseEnable:
-        mov r10, ENPIN
-        ldr r12, gpioAddress_adr
-        ldr r12, [r12]
-        str r10, [r12, GPCLR0]
-
+        pinClr ENPIN
         udelay PULSEINT, tmAddress_adr
-
-        mov r10, ENPIN
-        ldr r12, gpioAddress_adr
-        ldr r12, [r12]
-        str r10, [r12, GPSET0]
-
+        pinSet ENPIN
         udelay PULSEINT, tmAddress_adr
-
-        mov r10, ENPIN
-        ldr r12, gpioAddress_adr
-        ldr r12, [r12]
-        str r10, [r12, GPCLR0]
+        pinClr ENPIN
 
         bx  lr
 
@@ -90,8 +98,11 @@ _clean4bits:
 
         bx lr
 
-_setmode8:
-        mov r0, STMODE
+
+_setmode:
+        mov r7, lr      @ salvando o ponteiro para a saída 
+
+        mov r0, r1
         bl _write4bits
 
         mov r6, #10
@@ -102,14 +113,13 @@ _setmode8:
         mov r6, #10
         udelay r6, tmAddress_adr
 
-        mov r0, STMODE
+        mov r0, r1
         bl _clean4bits
 
         mov r6, #4500
         udelay r6, tmAddress_adr
 
-        bx lr
-
+        bx r7
 
 .macro sendCmd CMD
         @ Primeiro os bits altos
@@ -117,30 +127,19 @@ _setmode8:
         lsr r0, #4
         bl _write4bits
 
-        mov r6, #10
-        udelay r6, tmAddress_adr
-
         bl _pulseEnable
 
-        mov r6, #100
-        udelay r6, tmAddress_adr
 
         mov r0, \CMD
         lsr r0, #4
         bl _clean4bits
         
-        
+
         @ Segundo os bits baixos
         mov r0, \CMD
         bl _write4bits
 
-        mov r6, #10
-        udelay r6, tmAddress_adr
-
         bl _pulseEnable
-
-        mov r6, #100
-        udelay r6, tmAddress_adr
 
         mov r0, \CMD
         bl _clean4bits
@@ -148,48 +147,29 @@ _setmode8:
 
 .macro sendData CMD
 
-        ldr r0, gpioAddress_adr
-        ldr r0, [r0]
-        mov r1, RSPIN
-        str r1, [r0, GPSET0]
+        pinSet RSPIN
 
         @ Primeiro os bits altos
         mov r0, \CMD
         lsr r0, #4
         bl _write4bits
 
-        mov r6, #10
-        udelay r6, tmAddress_adr
-
         bl _pulseEnable
-
-        mov r6, #10
-        udelay r6, tmAddress_adr
 
         mov r0, \CMD
         lsr r0, #4
         bl _clean4bits
-        
-        
+             
         @ Segundo os bits baixos
         mov r0, \CMD
         bl _write4bits
 
-        mov r6, #10
-        udelay r6, tmAddress_adr
-
         bl _pulseEnable
-
-        mov r6, #10
-        udelay r6, tmAddress_adr
 
         mov r0, \CMD
         bl _clean4bits
 
-        ldr r0, gpioAddress_adr
-        ldr r0, [r0]
-        mov r1, RSPIN
-        str r1, [r0, GPCLR0]
+        pinClr RSPIN
 .endm
 
 
@@ -259,83 +239,23 @@ gpioconfig:     @ configuração de modo dos GPIOs
         str r0, [r6, GPCLR0]
 
 setmode:
-        mov r0, STMODE
-        bl _write4bits
+        mov r1, STMODE
+        bl _setmode
+        mov r1, STMODE
+        bl _setmode
+        mov r1, STMODE
+        bl _setmode
 
-        mov r6, #10
-        udelay r6, tmAddress_adr
-
-        bl _pulseEnable
-
-        mov r6, #10
-        udelay r6, tmAddress_adr
-
-        mov r0, STMODE
-        bl _clean4bits
-
-        mov r6, #4500
-        udelay r6, tmAddress_adr
-
-setmode1:
-        mov r0, STMODE
-        bl _write4bits
-
-        mov r6, #10
-        udelay r6, tmAddress_adr
-
-        bl _pulseEnable
-
-        mov r6, #10
-        udelay r6, tmAddress_adr
-
-        mov r0, STMODE
-        bl _clean4bits
-
-        mov r6, #4500
-        udelay r6, tmAddress_adr
-
-setmode2:
-        mov r0, STMODE
-        bl _write4bits
-
-        mov r6, #10
-        udelay r6, tmAddress_adr
-
-        bl _pulseEnable
-
-        mov r6, #10
-        udelay r6, tmAddress_adr
-
-        mov r0, STMODE
-        bl _clean4bits
-
-
-        mov r6, #4500
-        udelay r6, tmAddress_adr
 
 bit4mode:
-        mov r0, B4MODE
-        bl _write4bits
-
-        mov r6, #10
-        udelay r6, tmAddress_adr
-
-        bl _pulseEnable
-
-        mov r6, #10
-        udelay r6, tmAddress_adr
-
-        mov r0, B4MODE
-        bl _clean4bits
-
-        mov r6, #150
-        udelay r6, tmAddress_adr
+        mov r1, B4MODE
+        bl _setmode
 
 
 
 clear1:
         sendCmd B42LINE
-        mov r6, #500
+        mov r6, #5
         mdelay r6, tmAddress_adr
 
         sendCmd CLEAR
@@ -343,51 +263,38 @@ clear1:
         mov r6, #500
         mdelay r6, tmAddress_adr
 
-comandos:
-        sendCmd D1C1B0
+config:
+        sendCmd D1C0B0
 
-        mov r6, #500
+        mov r6, #5
         mdelay r6, tmAddress_adr
         sendCmd EMSLN
-        mov r6, #500
+        mov r6, #5
         mdelay r6, tmAddress_adr
-        @ sendCmd CSHFTR
-        @ mov r6, #500
-        @ mdelay r6, tmAddress_adr
-        @ sendCmd CSHFTR
-        @ mov r6, #500
-        @ mdelay r6, tmAddress_adr
-        @ sendCmd CSHFTR
-        @ mov r6, #500
-        @ mdelay r6, tmAddress_adr
 
-        ldr r0, gpioAddress_adr
-        ldr r0, [r0]
-        mov r1, RSPIN
-        str r1, [r0, GPSET0]
+loop:
+
+        mov r6, #1000
+        mdelay r6, tmAddress_adr
+
+        ldr r5, =COUNTER
+        ldr r7, [r5]
+
+        sendData r7
         
-        sendCmd 0x4A
-        mov r6, #500
+        mov r6, #50
         udelay r6, tmAddress_adr
 
-        sendCmd 0x41
-        mov r6, #500
-        udelay r6, tmAddress_adr
-
-        sendCmd 0x43
-        mov r6, #500
-        udelay r6, tmAddress_adr
-
-        sendData 0x41
-        mov r6, #500
-        udelay r6, tmAddress_adr
-
-        ldr r0, gpioAddress_adr
-        ldr r0, [r0]
-        mov r1, RSPIN
-        str r1, [r0, GPCLR0]
+        sendCmd CSHFTL
+        
+        add r7, r7, #1
+        cmp r7, 0x39
+        movgt r7, 0x30
+        str r7, [r5]
 
 
+
+        b loop
         
 @ fim de programa
         mov     r0, 0           @ return 0;
@@ -407,12 +314,15 @@ gpioAddress_adr:        .word gpioAddress
 tmAddress_adr:          .word tmAddress
 GPORT_adr:              .word GPORT             @ Armazena os bits antes de enviar
 LTR_A_adr:               .word LTR_A
+COUNTER_adr:            .word COUNTER
 
 .data
         fileDescriptor: .word 0
         gpioAddress:    .word 0
         tmAddress:      .word 0
         GPORT:          .word 0
+
+        COUNTER:        .word 0x30
         LTR_A:          .ascii "A"
 
 

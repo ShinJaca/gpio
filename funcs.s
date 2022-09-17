@@ -5,7 +5,7 @@
 
 @ Define my Raspberry Pi
         @ .cpu    arm1176jz-s
-        .cpu    cortex-a7
+        @ .cpu    cortex-a7
         .syntax unified         @ modern syntax
 
 @ Constants for assembler
@@ -43,6 +43,7 @@
         .equ    GPCLR1,0x2C             @
         .equ    GPSET0,0x1c             @
         .equ    GPSET1,0x20             @
+        .equ    GPLEV0,0x34             @
 
         .equ    FSEL_OUTPUT,0b001       @ Bits de modo de OUTPUT
         .equ    FSEL_MASK,  0b111
@@ -111,18 +112,6 @@ device:
 .endm
 
 
-.macro _mapbitsToPort val, mask, pos, port
-	ldr r12, \port 	@ endereço da porta
-@ Mascaramento do bit
-	mov r11, \val		@ valor a ser mapeado
-	mov r10, \mask		@ mascara do bit
-	and r11, r11, r10	@ isolamento do bit da mascara
-	lsl r11, r11, \pos	@ posicionamento do resultado no pino correspondente
-	ldr r10, [r12]		@ racupera o valor da porta
-	orr r11, r11, r10	@ atualiza o bit do pino no valor da porta
-	str r11, [r12]		@ atualiza a porta
-.endm
-
 .macro _bitset mask, pos
         mov r10, \mask		@ mascara do bit
 	and r10, r11, r10	@ isolamento do bit da mascara
@@ -139,15 +128,6 @@ device:
         _bitset BIT2, D6O
         _bitset BIT3, D7O
 	str r9, [r12]		@ atualiza a porta
-.endm
-
-.macro _setPinOnPort pin, port
-	mov r11, BIT0
-	mov r11, r11, lsl \pin          @ mascara do pino selecionado
-	ldr r12, \port			@ endereço da variavel com endereço do periférico
-	ldr r10, [r12]			@ valor do periférico
-	orr r10, r10, r11		@ modificação do bit do pino
-	str r10, [r12]			@ muda o periférico
 .endm
 
 .macro mdelay msec, timer_adr
@@ -176,23 +156,6 @@ device:
 .endm
 
 
-.macro enpulse timer_adr, gpio_adr
-        mov r10, #1
-        lsl r10, EN             @ posição do pino enable
-        ldr r6, \gpio_adr
-        ldr r6, [r6]          @ endereço base dos GPIO
-        mov r12, #1
-        str r10, [r6, GPCLR0]  @ Clear ENABLE
-        udelay r12, \timer_adr   @ espera 1ms
-        str r10, [r6, GPSET0] @ Clear ENABLE
-        udelay r12, \timer_adr   @ espera 1ms
-        str r10, [r6, GPCLR0] @ Clear ENABLE
-        mov r12, #100
-        udelay r12, \timer_adr   @espera 100ms para o comando ser interpretado
-
-.endm
-
-
 deviceAddr:
         .word   device
 openMode:
@@ -204,5 +167,3 @@ timer:
         .word   PERIPH+TIMER_OFFSET
 
 
-
-        

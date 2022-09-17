@@ -23,17 +23,32 @@ memmap.o: memmap.s
 setReg.o: setReg.s
 	as -o $@ $<
 
+
+testec: teste clean
 teste: teste.o
 	gcc -o $@ $+
 teste.o: teste.s
 	as -o $@ $<
 
 
-lcd: lcdtest clean
-lcdtest: lcdtest.o
-	gcc -o $@ $+
-lcdtest.o: lcdtest.s
-	as -o $@ $<
+
+# LCD
+
+lcd2: lcdtest2 clean
+lcdtest2: lcdtest2.o
+	gcc -o lcdtest $+
+lcdtest2.o: lcdtest.s
+	as -o $@ $< -mcpu=cortex-a7
+
+lcdZ: lcdtestZ clean
+lcdtestZ: lcdtestZ.o
+	gcc -o lcdtest $+
+lcdtestZ.o: lcdtest.s
+	as -o $@ $< -mcpu=arm1176jz-s
+
+
+
+# Input
 
 intest: inputtest clean
 inputtest: inputtest.o
