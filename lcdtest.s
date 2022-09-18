@@ -32,11 +32,15 @@
         .equ    ENPIN,  0x100
         @ .equ    ENPIN,  0x10
         .equ    RSPIN,  0x2000000
+        .equ    PBTN1,  0x20
 
-        .equ    INTERVALO, 5000
+        .equ    INTERVALO, 1000
         .equ    PULSEINT, 10
 
         .equ    CLEANMASK, 0x2311100
+
+        .equ    UPOSCMD, 0b10000001
+        .equ    DPOSCMD, 0b10000000
 
 
 @ Constant program data
@@ -272,27 +276,57 @@ config:
         mov r6, #5
         mdelay r6, tmAddress_adr
 
+
 loop:
 
-        mov r6, #1000
+        mov r6, INTERVALO
         mdelay r6, tmAddress_adr
-
+stp:
+        ldr r0, gpioAddress_adr
+        ldr r0, [r0]
+        ldr r1, [r0, GPLEV0]
+        and r1, PBTN1
+        cmp r1, #0
+        bgt next
+        ldr r5, =COUNTERDEC
+        mov r7, 0x30
+        str r7, [r5]
         ldr r5, =COUNTER
-        ldr r7, [r5]
+        mov r7, 0x30
+        str r7, [r5]
 
-        sendData r7
-        
+next:
+        sendCmd DPOSCMD
         mov r6, #50
         udelay r6, tmAddress_adr
 
-        sendCmd CSHFTL
-        
+        ldr r5, =COUNTERDEC
+        ldr r7, [r5]
+        sendData r7
+        mov r6, #50
+        udelay r6, tmAddress_adr
+
+        ldr r5, =COUNTER
+        ldr r7, [r5]
+        sendData r7
+        mov r6, #50
+        udelay r6, tmAddress_adr
+
+
         add r7, r7, #1
         cmp r7, 0x39
         movgt r7, 0x30
         str r7, [r5]
 
+        
+        ble loop
 
+        ldr r5, =COUNTERDEC
+        ldr r7, [r5]
+        add r7, #1
+        cmp r7, 0x39
+        movgt r7, 0x30
+        str r7, [r5]
 
         b loop
         
@@ -313,7 +347,6 @@ fileDescriptor_adr:     .word fileDescriptor
 gpioAddress_adr:        .word gpioAddress
 tmAddress_adr:          .word tmAddress
 GPORT_adr:              .word GPORT             @ Armazena os bits antes de enviar
-LTR_A_adr:               .word LTR_A
 COUNTER_adr:            .word COUNTER
 
 .data
@@ -323,6 +356,6 @@ COUNTER_adr:            .word COUNTER
         GPORT:          .word 0
 
         COUNTER:        .word 0x30
-        LTR_A:          .ascii "A"
+        COUNTERDEC:     .word 0x30
 
 

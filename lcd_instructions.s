@@ -15,6 +15,8 @@
 
 .equ    CSHFTL, 0b00010000
 .equ    CSHFTR, 0b00010100
+.equ    CPOADR, 0b10000000
+
 .equ    STLNCH, 0x00101000  @ set 2 lines 5x7 matrix
 
 .equ    CGADDR, 0x01000000  @ Set address MASK
