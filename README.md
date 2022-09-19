@@ -1,5 +1,5 @@
 # MI - Sistemas Digitais
-## Meta 2 - Caractere em LCD
+## Meta 3 - Leitura de Botão
 
 ### Arquivos
 
@@ -7,7 +7,9 @@
 
 - *lcd_instructions.s* - declaração de comandos e constantes para comunicação com o LCD (HD44780)
 
-- *lcdtest.s* - programa de teste de comunicação com o LCD
+- *lcdtest.s* - programa de teste de comunicação com o LCD, neste teste, ele lê o estado do pino GPIO5, imprime um contador de segundos, zerando ao segurar-se o botão do pino GPIO5
+
+- *inputest.s* - programa de teste de entrada, lê o registrador de nível dos pinos e filtra para o pino específico a ser testado
 
 ### Build
 
@@ -16,6 +18,9 @@ make
 
 # ou
 make lcdtest
+
+# ou
+make inputest
 
 # para limpeza
 make clean
