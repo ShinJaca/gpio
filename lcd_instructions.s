@@ -24,4 +24,5 @@
 
 .equ    CGADDR, 0x01000000  @ Set address MASK
 
-.equ    CHARA, 0x41
+.equ    UPOSCMD, 0b10000001
+.equ    DPOSCMD, 0b10000000

@@ -12,7 +12,6 @@
 
     @Seleção de funcção de pinos
     .equ    FSEL01, 3   @EN (GPIO01)
-    @ .equ    FSEL08, 24   @EN (GPIO08)
     .equ    FSEL12, 6   @D4 (GPIO12)
     .equ    FSEL16, 18  @D5 (GPIO16)
     .equ    FSEL20, 0   @D6 (GPIO20)
@@ -26,11 +25,9 @@
     .equ    GPIO21, 21
     .equ    RS,     25
     .equ    EN,     1   
-    @ .equ    EN,     8
 
     @Constante de pinos
     .equ    ENPIN,  0x2
-    @ .equ    ENPIN,  0x100
     .equ    RSPIN,  0x2000000
     .equ    PBTN1,  0x20        @GPIO05
     .equ    PBTN2,  0x80000     @GPIO19
@@ -46,6 +43,9 @@
 
     @ Mascara de limpeza de estados de pinos
     .equ    CLEANMASK, 0x2311120
+
+    .equ    OUTMODE, 0b001
+    .equ    REGMASK, 0b111
 
 
 
@@ -132,10 +132,12 @@ _setmode:
 
         bl _clean4bits
 
-        mov r6, #4500
-        udelay r6, tmAddress_adr
+        mov r6, #5
+        mdelay r6, tmAddress_adr
 
         bx r7
+
+
 
 @ Executa os passos para enviar um comando para o LCD
 .macro sendCmd CMD
@@ -188,3 +190,237 @@ _setmode:
 
         pinClr RSPIN
 .endm
+
+.macro sendDataM
+
+        pinSet RSPIN
+
+        @ salva o ponto de retorno na Stack
+        ldr r1, TMPCHAR_adr
+        str r0, [r1]
+        
+        @ Primeiro os bits altos
+        lsr r0, #4
+        bl _write4bits
+
+        bl _pulseEnable
+
+        ldr r1, TMPCHAR_adr
+        ldr r0, [r1]
+        lsr r0, #4
+        bl _clean4bits
+             
+        @ Segundo os bits baixos
+        ldr r1, TMPCHAR_adr
+        ldr r0, [r1]
+        bl _write4bits
+
+        bl _pulseEnable
+
+        ldr r1, TMPCHAR_adr
+        ldr r0, [r1]
+        bl _clean4bits
+
+        pinClr RSPIN
+.endm
+
+
+.global _lcdStartup
+.type   _lcdStartup, %function
+
+_lcdStartup:
+@ salva o ponto de retorno na Stack
+        ldr r0, TEMP_lr_adr
+        str lr, [r0]
+
+@ Abertura do arquivo de espelahamento de memoria /dev/mem
+        _openfile fileDescriptor_adr
+@ Mapeamento de memória para GPIO
+        _memmap gpio, r0, gpioAddress_adr
+        ldr r0, fileDescriptor_adr
+        ldr r0, [r0]
+        _memmap timer, r0, tmAddress_adr
+        
+@ configuração de modo dos GPIOs
+        @ Gpios do banco GPFSEL2
+        _setreg GPORT_adr, REGMASK, OUTMODE, FSEL20
+        _setreg GPORT_adr, REGMASK, OUTMODE, FSEL21
+        _setreg GPORT_adr, REGMASK, OUTMODE, FSEL25
+
+        ldr r0, gpioAddress_adr
+        ldr r0, [r0]                    @ Endereço base dos perif
+        ldr r1, GPORT_adr
+        ldr r1, [r1]                    @ Valor configurado da porta
+        str r1, [r0, GPFSEL2]           @ Salva no registrador
+        ldr r1, GPORT_adr
+        mov r0, #0
+        str r0, [r1]                    @ Zera a porta
+
+        @ Gpios do banco GPFSEL0
+        _setreg GPORT_adr, REGMASK, OUTMODE, FSEL01
+
+        ldr r0, gpioAddress_adr
+        ldr r0, [r0]                    @ Endereço base dos perif
+        ldr r1, GPORT_adr
+        ldr r1, [r1]                    @ Valor configurado da porta
+        str r1, [r0, GPFSEL0]                    @ Salva no registrador
+        ldr r1, GPORT_adr
+        mov r0, #0
+        str r0, [r1]                    @ Zera a porta
+
+        @ Gpios do banco GPFSEL1
+        _setreg GPORT_adr, REGMASK, OUTMODE, FSEL12
+        _setreg GPORT_adr, REGMASK, OUTMODE, FSEL16
+        
+        ldr r0, gpioAddress_adr
+        ldr r0, [r0]
+        mov r6, r0
+        ldr r1, GPORT_adr
+        ldr r1, [r1]                    @ Valor configurado da porta
+        str r1, [r0, GPFSEL1]                    @ Salva no registrador
+
+        ldr r0, GPORT_adr
+        mov r1, 0
+        str r1, [r0]
+
+        ldr r0, =CLEANMASK
+        str r0, [r6, GPCLR0]
+
+@ Configura o modo correto para comunicação 4 bits
+        mov r1, STMODE
+        bl _setmode
+        mov r1, STMODE
+        bl _setmode
+        mov r1, STMODE
+        bl _setmode
+
+        mov r1, B4MODE
+        bl _setmode
+
+@ Configura o modo de linhas para 2 Linhas
+        sendCmd B42LINE
+        mov r6, #5
+        mdelay r6, tmAddress_adr
+
+        @ recupera link de retorno
+
+        ldr r0, TEMP_lr_adr
+        ldr lr, [r0]
+        bx  lr
+
+@ Fim _lcdStartup
+
+
+.global _clearDisplay
+.type   _clearDisplay, %function
+
+_clearDisplay:
+@ salva o ponto de retorno na Stack
+        ldr r0, TEMP_lr_adr
+        str lr, [r0]
+
+        sendCmd CLEAR
+
+        mov r6, #500
+        mdelay r6, tmAddress_adr
+        
+                @ recupera link de retorno
+        ldr r0, TEMP_lr_adr
+        ldr lr, [r0]
+        bx  lr
+@ Fim _clearDisplay
+
+
+.global _turnOnCursorOn
+.type   _turnOnCursorOn, %function
+
+_turnOnCursorOn:
+@ salva o ponto de retorno na Stack
+        ldr r0, TEMP_lr_adr
+        str lr, [r0]
+
+        sendCmd D1C1B0
+
+        mov r6, #5
+        mdelay r6, tmAddress_adr
+
+                @ recupera link de retorno
+        ldr r0, TEMP_lr_adr
+        ldr lr, [r0]
+        bx  lr
+@ Fim _turnOnCursorOff
+
+.global _setMemoryMode
+.type   _setMemoryMode, %function
+
+_setMemoryMode:
+@ salva o ponto de retorno na Stack
+        ldr r0, TEMP_lr_adr
+        str lr, [r0]
+
+        sendCmd EMSLN
+
+        mov r6, #5
+        mdelay r6, tmAddress_adr
+        
+                @ recupera link de retorno
+        ldr r0, TEMP_lr_adr
+        ldr lr, [r0]
+        bx  lr
+@ Fim _setMemoryMode
+
+
+.global _cursorHome
+.type   _cursorHome, %function
+
+_cursorHome:
+@ salva o ponto de retorno na Stack
+        ldr r0, TEMP_lr_adr
+        str lr, [r0]
+
+        sendCmd DPOSCMD
+
+        mov r6, #50
+        udelay r6, tmAddress_adr
+        
+                @ recupera link de retorno
+        ldr r0, TEMP_lr_adr
+        ldr lr, [r0]
+        bx  lr
+@ Fim _cursorHome
+
+.global _sendChar
+.type   _sendChar, %function
+
+_sendChar:
+@ salva o ponto de retorno na Stack
+        ldr r1, TEMP_lr_adr
+        str lr, [r1]
+
+        sendDataM
+
+        mov r6, #50
+        udelay r6, tmAddress_adr
+        
+        @ recupera link de retorno
+        ldr r1, TEMP_lr_adr
+        ldr lr, [r1]
+
+        bx  lr
+@ Fim _sendChar
+
+
+fileDescriptor_adr:     .word fileDescriptor
+gpioAddress_adr:        .word gpioAddress
+tmAddress_adr:          .word tmAddress
+GPORT_adr:              .word GPORT             @ Armazena os bits antes de enviar
+TEMP_lr_adr:            .word TEMP_lr
+TMPCHAR_adr:            .word TMPCHAR
+
+.data
+        fileDescriptor: .word 0
+        gpioAddress:    .word 0
+        tmAddress:      .word 0
+        GPORT:          .word 0
+        TEMP_lr:        .word 0
+        TMPCHAR:        .word 0
