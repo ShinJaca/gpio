@@ -1,50 +1,29 @@
-all: lcdtest clean
+# Makefile para biblioteca de interface com LCD 1602
 
-# Executáveis
-
-ioset: iomem.o setReg.o
-	gcc -o $@ $+
-ioclr: iomem_clear.o setReg.o
-	gcc -o $@ $+
-memmap: memmap.o setReg.o
-	gcc -o $@ $+
-
-# Objetos principais
-
-iomem.o: iomem.s
-	as -o $@ $<
-iomem_clear.o: iomem_clear.s
-	as -o $@ $<
-memmap.o: memmap.s
-	as -o $@ $<
-
-# Bibliotecas
-
-setReg.o: setReg.s
-	as -o $@ $<
+# Opções de compilador e montador
+COMPOPTS = -Wall
+COMPOUTPUT = lcdtest
+ASPIZERO = -mcpu=arm1176jz-s --defsym .pimodel=0
+ASPIDOIS = -mcpu=cortex-a7 --defsym .pimodel=2
 
 
-testec: teste clean
-teste: teste.o
-	gcc -o $@ $+
-teste.o: teste.s
-	as -o $@ $<
-
+# all: lcdtest clean
 
 
 # LCD
-
-lcd2: lcdtest2 clean
+# Para RaspberryPi 2
+raspdois: lcdtest2 clean
 lcdtest2: lcdtest2.o
-	gcc -o lcdtest $+
+	gcc $(COMPOPTS) -o $(COMPOUTPUT) $+
 lcdtest2.o: lcdtest.s
-	as -o $@ $< -mcpu=cortex-a7
+	as -o $@ $< $(ASPIDOIS)
 
-lcdZ: lcdtestZ clean
+# Para RaspberryPi Zero
+raspzero: lcdtestZ clean
 lcdtestZ: lcdtestZ.o
-	gcc -o lcdtest $+
+	gcc $(COMPOPTS) -o $(COMPOUTPUT) $+
 lcdtestZ.o: lcdtest.s
-	as -o $@ $< -mcpu=arm1176jz-s
+	as -o $@ $< $(ASPIZERO)
 
 
 

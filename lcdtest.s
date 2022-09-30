@@ -11,7 +11,7 @@
         @ .cpu    cortex-a7
         .syntax unified         @ modern syntax
 
-        .equ    FSEL08, 24
+        .equ    FSEL01, 3
         .equ    FSEL12, 6
         .equ    FSEL16, 18
         .equ    FSEL20, 0
@@ -26,11 +26,9 @@
         .equ    GPIO20, 20
         .equ    GPIO21, 21
         .equ    RS,     25
-        .equ    EN,     8
-        @ .equ    EN,     1
+        .equ    EN,     1
 
-        .equ    ENPIN,  0x100
-        @ .equ    ENPIN,  0x10
+        .equ    ENPIN,  0x2
         .equ    RSPIN,  0x2000000
         .equ    PBTN1,  0x20
 
@@ -120,8 +118,8 @@ _setmode:
         mov r0, r1
         bl _clean4bits
 
-        mov r6, #4500
-        udelay r6, tmAddress_adr
+        mov r6, #5
+        mdelay r6, tmAddress_adr
 
         bx r7
 
@@ -213,7 +211,7 @@ gpioconfig:     @ configuração de modo dos GPIOs
         str r0, [r1]                    @ Zera a porta
 
         @ Gpios do banco GPFSEL0
-        _setreg GPORT_adr, REGMASK, OUTMODE, FSEL08
+        _setreg GPORT_adr, REGMASK, OUTMODE, FSEL01
 
         ldr r0, gpioAddress_adr
         ldr r0, [r0]                    @ Endereço base dos perif

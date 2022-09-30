@@ -21,8 +21,12 @@
         .equ    MAP_SHARED,0x01 @ share changes
 
 @ The following are defined by me:
+.if .pimodel == 2
         .equ    PERIPH,0x3f000000   @ RPi 2 & 3 peripherals
-        @ .equ    PERIPH,0x20000000   @ RPi zero & 1 peripherals
+.endif
+.if .pimodel == 0
+        .equ    PERIPH,0x20000000   @ RPi zero & 1 peripherals
+.endif
         .equ    O_FLAGS,O_RDWR|O_SYNC @ open file flags
         .equ    PROT_RDWR,PROT_READ|PROT_WRITE
         .equ    NO_PREF,0
