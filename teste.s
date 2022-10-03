@@ -10,16 +10,29 @@
 .text
 .align 2
 
+.macro stacAloc size
+    sub     sp, sp, 8       @ Espaço para LR e FP
+    str     fp, [sp, 0]     @ Salvando FP
+    str     lr, [sp, 4]     @ Salvando LR
+    add     fp, sp, 4       @ Novo frame pointer
+
+    sub     sp, sp, \size   @ Espaço para variáveis locais
+.endm
+
+.macro stacDisaloc size
+    add     sp, sp, \size
+    sub     sp, fp, 4
+    ldr     fp, [sp, 0]
+    ldr     lr, [sp, 4]
+    add     sp, sp, 8
+.endm
+
 stackL1:
-    sub     sp, sp, 8
-    str     fp, [sp, 0]
-    str     lr, [sp, 4]
-    add     fp, sp, 4
-    sub     sp, sp, 8
+    stacAloc #8
 
+    mov r0, #25
 
-    sub     sp, fp, #4
-    pop     {fp, lr}
+    stacDisaloc #8
     bx      lr
 
 stackL0:
