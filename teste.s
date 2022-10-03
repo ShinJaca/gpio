@@ -1,17 +1,43 @@
 .syntax unified
 
 
-    .equ    STACK_ARGS,8    @ sp already 8-byte aligned
 
 .section .rodata
 .align 2
-
-
-asc_J:    .ascii "JACA DA BAHIA"
+    .equ    STACK_ARGS,8    @ sp already 8-byte aligned
 
 
 .text
 .align 2
+
+stackL1:
+    sub     sp, sp, 8
+    str     fp, [sp, 0]
+    str     lr, [sp, 4]
+    add     fp, sp, 4
+    sub     sp, sp, 8
+
+
+    sub     sp, fp, #4
+    pop     {fp, lr}
+    bx      lr
+
+stackL0:
+    sub     sp, sp, 8
+    str     fp, [sp, 0]
+    str     lr, [sp, 4]
+    add     fp, sp, 4
+    sub     sp, sp, 12
+    mov     r3, #1
+    str     r3, [fp, #-12]
+    mov     r3, #3
+    str     r3, [fp, #-8]
+    bl      stackL1
+
+    sub     sp, fp, #4
+    pop     {fp, lr}
+    bx      lr
+
 
 .global main
 .type   main, %function
@@ -26,8 +52,7 @@ main:
     sub     sp, sp, STACK_ARGS @ sp on 8-byte boundary
 
 code:
-    ldr r0, =asc_J
-    ldr r1, [r0]
+    bl stackL0
 
 
     mov     r0, 0           @ return 0;

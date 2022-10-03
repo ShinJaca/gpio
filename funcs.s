@@ -90,7 +90,8 @@ device:
 
 
 .macro _memmap base_adr, filedesc_reg, mappedadr_adr
-@ Map the address registers to a virtual memory location so we c[an access them        
+        sub sp, sp, 4
+@ Map the address registers to a virtual memory location so we can access them        
         str     \filedesc_reg, [sp, FILE_DESCRP_ARG] @ /dev/mem file descriptor
         ldr     r0, \base_adr        @ address of GPIO
         str     r0, [sp, DEVICE_ARG]      @ location of GPIO
@@ -101,6 +102,8 @@ device:
         bl      mmap
         ldr     r1, \mappedadr_adr
         str     r0, [r1]
+        
+        add sp, sp, 4
 .endm
 
 .macro _setreg port_adr, regmask, data, data_pos
@@ -117,21 +120,21 @@ device:
 
 
 .macro _bitset mask, pos
-        mov r10, \mask		@ mascara do bit
-	and r10, r11, r10	@ isolamento do bit da mascara
-	lsl r10, r10, \pos	@ posicionamento do resultado no pino correspondente
-	orr r9, r9, r10
+        mov r4, \mask		@ mascara do bit
+	and r4, r0, r4	@ isolamento do bit da mascara
+	lsl r4, r4, \pos	@ posicionamento do resultado no pino correspondente
+	orr r0, r1, r4
 .endm
 
 .macro _mapbitsToPort4 val, port
-	ldr r12, \port 	@ endereço da porta
-	mov r11, \val		@ valor a ser mapeado
-	ldr r9, [r12]		@ racupera o valor da porta
+	ldr r2, \port 	@ endereço da porta
+	mov r0, \val		@ valor a ser mapeado
+	ldr r1, [r2]		@ racupera o valor da porta
         _bitset BIT0, D4O
         _bitset BIT1, D5O
         _bitset BIT2, D6O
         _bitset BIT3, D7O
-	str r9, [r12]		@ atualiza a porta
+	str r0, [r2]		@ atualiza a porta
 .endm
 
 .macro mdelay msec, timer_adr
@@ -139,11 +142,11 @@ device:
         ldr r10, [r10]          @ endereço do timer
         mov r9, BASEUSEC
         mul r9, r9, \msec
-        ldr r11, [r10, TCLO]    @ momento inicial
+        ldr r4, [r10, TCLO]    @ momento inicial
 \@:     
-        ldr r12, [r10, TCLO]
-        sub r12, r12, r11
-        cmp r12, r9
+        ldr r8, [r10, TCLO]
+        sub r8, r8, r4
+        cmp r8, r9
         blt \@b
 .endm
 
@@ -151,11 +154,11 @@ device:
         ldr r10, \timer_adr
         ldr r10, [r10]          @ endereço do timer
         mov r9, \msec
-        ldr r11, [r10, TCLO]    @ momento inicial
+        ldr r4, [r10, TCLO]    @ momento inicial
 \@:     
-        ldr r12, [r10, TCLO]
-        sub r12, r12, r11
-        cmp r12, r9
+        ldr r8, [r10, TCLO]
+        sub r8, r8, r4
+        cmp r8, r9
         blt \@b
 .endm
 

@@ -35,6 +35,13 @@ cteste: cteste.o 1602minidrv.o
 cteste.o: lcdtest.c 1602minidrv.h
 	gcc -g -c -Wall -o $@ lcdtest.c
 
+# Teste
+mteste: teste clean
+teste: teste.o
+	gcc -o $@ $+
+teste.o: teste.s
+	as -o $@ $<
+
 
 
 # Input

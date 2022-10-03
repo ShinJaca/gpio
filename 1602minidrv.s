@@ -55,18 +55,18 @@
 
 @ Zera o estado do(s) pino(s) selecionado(s) em pinmsk
 .macro pinClr pinmsk
-        mov r11, \pinmsk
-        ldr r12, gpioAddress_adr
-        ldr r12, [r12]
-        str r11, [r12, GPCLR0]
+        mov r4, \pinmsk
+        ldr r5, gpioAddress_adr
+        ldr r5, [r5]
+        str r4, [r5, GPCLR0]
 .endm 
 
 @ Seta o estado do(s) pino(s) selecionado(s) em pinmsk
 .macro pinSet pinmsk
-        mov r11, \pinmsk
-        ldr r12, gpioAddress_adr
-        ldr r12, [r12]
-        str r11, [r12, GPSET0]
+        mov r4, \pinmsk
+        ldr r5, gpioAddress_adr
+        ldr r5, [r5]
+        str r4, [r5, GPSET0]
 .endm 
 
 
@@ -90,11 +90,11 @@ _pulseEnable:
 @ Escreve um nibble para a memória e para a porta configurada
 _write4bits:
          _mapbitsToPort4 r0, GPORT_adr
-        ldr r12, gpioAddress_adr
-        ldr r12, [r12]
-        ldr r11, GPORT_adr
-        ldr r11, [r11]
-        str r11, [r12, GPSET0]
+        ldr r4, gpioAddress_adr
+        ldr r4, [r4]
+        ldr r5, GPORT_adr
+        ldr r5, [r5]
+        str r5, [r4, GPSET0]
 
         bx lr
 
@@ -102,14 +102,14 @@ _write4bits:
 @ Limpa um nibble da memória e da porta configurada
 _clean4bits:
         _mapbitsToPort4 r0, GPORT_adr
-        ldr r12, gpioAddress_adr
-        ldr r12, [r12]
-        ldr r11, GPORT_adr
-        ldr r11, [r11]
-        str r11, [r12, GPCLR0]
-        ldr r11, GPORT_adr
-        mov r10, #0
-        str r10, [r11]
+        ldr r4, gpioAddress_adr
+        ldr r4, [r4]
+        ldr r5, GPORT_adr
+        ldr r5, [r5]
+        str r5, [r4, GPCLR0]
+        ldr r5, GPORT_adr
+        mov r6, #0
+        str r6, [r5]
 
         bx lr
 
@@ -118,7 +118,9 @@ _clean4bits:
 @ r0 --> MODO a ser enviado
 
 _setmode:
-        mov r7, lr      @ salvando o ponteiro para a saída 
+        stmfd sp!, {fp, lr}
+        add fp, sp, 4
+        sub sp, sp, 8
 
         bl _write4bits
 
@@ -135,7 +137,9 @@ _setmode:
         mov r6, #5
         mdelay r6, tmAddress_adr
 
-        bx r7
+        add sp, sp, 8
+        ldmfd sp!, {fp, lr}
+        bx lr
 
 
 
@@ -230,8 +234,11 @@ _setmode:
 
 _lcdStartup:
 @ salva o ponto de retorno na Stack
-        ldr r0, TEMP_lr_adr
-        str lr, [r0]
+        @ ldr r0, TEMP_lr_adr
+        @ str lr, [r0]
+        stmfd sp!, {fp, lr}
+        add fp, sp, 4
+        sub sp, sp, 4
 
 @ Abertura do arquivo de espelahamento de memoria /dev/mem
         _openfile fileDescriptor_adr
@@ -304,8 +311,10 @@ _lcdStartup:
 
         @ recupera link de retorno
 
-        ldr r0, TEMP_lr_adr
-        ldr lr, [r0]
+        @ ldr r0, TEMP_lr_adr
+        @ ldr lr, [r0]
+        add sp, sp, 4
+        ldmfd sp!, {fp, lr}
         bx  lr
 
 @ Fim _lcdStartup
