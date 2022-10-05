@@ -91,6 +91,9 @@ device:
 
 .macro _memmap base_adr, filedesc_reg, mappedadr_adr
 @ Map the address registers to a virtual memory location so we c[an access them        
+        push    {fp, lr}
+        sub     sp, sp, #8
+
         str     \filedesc_reg, [sp, FILE_DESCRP_ARG] @ /dev/mem file descriptor
         ldr     r0, \base_adr        @ address of GPIO
         str     r0, [sp, DEVICE_ARG]      @ location of GPIO
@@ -101,6 +104,9 @@ device:
         bl      mmap
         ldr     r1, \mappedadr_adr
         str     r0, [r1]
+
+        add     sp, sp, #8
+        pop     {fp, lr}
 .endm
 
 .macro _setreg port_adr, regmask, data, data_pos

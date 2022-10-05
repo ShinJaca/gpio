@@ -230,8 +230,8 @@ _setmode:
 
 _lcdStartup:
 @ salva o ponto de retorno na Stack
-        ldr r0, TEMP_lr_adr
-        str lr, [r0]
+        push {fp, lr}
+
 
 @ Abertura do arquivo de espelahamento de memoria /dev/mem
         _openfile fileDescriptor_adr
@@ -304,8 +304,7 @@ _lcdStartup:
 
         @ recupera link de retorno
 
-        ldr r0, TEMP_lr_adr
-        ldr lr, [r0]
+        pop {fp, lr}
         bx  lr
 
 @ Fim _lcdStartup
@@ -316,8 +315,7 @@ _lcdStartup:
 
 _clearDisplay:
 @ salva o ponto de retorno na Stack
-        ldr r0, TEMP_lr_adr
-        str lr, [r0]
+        push {fp, lr}
 
         sendCmd CLEAR
 
@@ -325,8 +323,7 @@ _clearDisplay:
         mdelay r6, tmAddress_adr
         
                 @ recupera link de retorno
-        ldr r0, TEMP_lr_adr
-        ldr lr, [r0]
+        pop {fp, lr}
         bx  lr
 @ Fim _clearDisplay
 
@@ -336,8 +333,7 @@ _clearDisplay:
 
 _turnOnCursorOn:
 @ salva o ponto de retorno na Stack
-        ldr r0, TEMP_lr_adr
-        str lr, [r0]
+        push {fp, lr}
 
         sendCmd D1C1B0
 
@@ -345,8 +341,7 @@ _turnOnCursorOn:
         mdelay r6, tmAddress_adr
 
                 @ recupera link de retorno
-        ldr r0, TEMP_lr_adr
-        ldr lr, [r0]
+        pop {fp, lr}
         bx  lr
 @ Fim _turnOnCursorOff
 
@@ -355,8 +350,7 @@ _turnOnCursorOn:
 
 _setMemoryMode:
 @ salva o ponto de retorno na Stack
-        ldr r0, TEMP_lr_adr
-        str lr, [r0]
+        push {fp, lr}
 
         sendCmd EMSLN
 
@@ -364,8 +358,7 @@ _setMemoryMode:
         mdelay r6, tmAddress_adr
         
                 @ recupera link de retorno
-        ldr r0, TEMP_lr_adr
-        ldr lr, [r0]
+        pop {fp, lr}
         bx  lr
 @ Fim _setMemoryMode
 
@@ -374,18 +367,16 @@ _setMemoryMode:
 .type   _cursorHome, %function
 
 _cursorHome:
-@ salva o ponto de retorno na Stack
-        ldr r0, TEMP_lr_adr
-        str lr, [r0]
+        @ salva o ponto de retorno na Stack
+        push {fp, lr}
 
         sendCmd DPOSCMD
 
         mov r6, #50
         udelay r6, tmAddress_adr
         
-                @ recupera link de retorno
-        ldr r0, TEMP_lr_adr
-        ldr lr, [r0]
+        @ recupera link de retorno
+        pop {fp, lr}
         bx  lr
 @ Fim _cursorHome
 
@@ -393,9 +384,8 @@ _cursorHome:
 .type   _sendChar, %function
 
 _sendChar:
-@ salva o ponto de retorno na Stack
-        ldr r1, TEMP_lr_adr
-        str lr, [r1]
+        @ salva o ponto de retorno na Stack
+        push    {fp, lr}
 
         sendDataM
 
@@ -403,10 +393,8 @@ _sendChar:
         udelay r6, tmAddress_adr
         
         @ recupera link de retorno
-        ldr r1, TEMP_lr_adr
-        ldr lr, [r1]
-
-        bx  lr
+        pop     {fp, lr}
+        bx      lr
 @ Fim _sendChar
 
 
@@ -414,7 +402,6 @@ fileDescriptor_adr:     .word fileDescriptor
 gpioAddress_adr:        .word gpioAddress
 tmAddress_adr:          .word tmAddress
 GPORT_adr:              .word GPORT             @ Armazena os bits antes de enviar
-TEMP_lr_adr:            .word TEMP_lr
 TMPCHAR_adr:            .word TMPCHAR
 
 .data
@@ -422,5 +409,4 @@ TMPCHAR_adr:            .word TMPCHAR
         gpioAddress:    .word 0
         tmAddress:      .word 0
         GPORT:          .word 0
-        TEMP_lr:        .word 0
         TMPCHAR:        .word 0

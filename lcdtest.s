@@ -41,11 +41,11 @@ config:
         bl _setMemoryMode
 
 
-        mov r0, 0x30
+        mov r0, 0x35
         bl _sendChar
         mov r0, 0x31
         bl _sendChar
-        mov r0, 0x33
+        mov r0, 0x32
         bl _sendChar
 @ fim de programa
         mov     r0, 0           @ return 0;
