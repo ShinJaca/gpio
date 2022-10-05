@@ -439,18 +439,21 @@ _printStr:
         mov r1, r0      @ Copia o endereço da string para r1
         
         pinSet RSPIN
-loop:   ldr r0, [r1]    @ Carrega a string em r0
+        ldr r0, [r1]    @ Carrega a string em r0
+loop:   
         bic r0, 0xffffff00 @ Isolamento do caractere
         sendCmdM        @ Envia o caractere em r0
         add r1, 1       @ Itera a string para o proximo char
+        ldr r0, [r1]    @ Carrega a string em r0
+
+        mov r6, #50
+        udelay r6, tmAddress_adr
 
         cmp r0, 0x0     @ Avalia o fim da string (char 0x0)
         bne loop        @ Se o char no registrador não for o fim, volta o loop
 
         pinClr RSPIN
 
-        mov r6, #50
-        udelay, r6, tmAddress_adr
 
         pop     {fp, lr}
         bx      lr

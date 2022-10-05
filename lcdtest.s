@@ -13,6 +13,7 @@
         .align  2
 
         .equ    STACK_ARGS,8    @ sp already 8-byte aligned
+        txt:    .asciz "jaca"
 
 
 @ The program
@@ -47,6 +48,12 @@ config:
         bl _sendChar
         mov r0, 0x32
         bl _sendChar
+        
+        mov r0, 0x20
+        bl _sendChar
+        ldr r0, =txt
+        bl _printStr
+
 @ fim de programa
         mov     r0, 0           @ return 0;
         add     sp, sp, STACK_ARGS  @ fix sp
