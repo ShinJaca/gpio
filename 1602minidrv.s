@@ -118,7 +118,8 @@ _clean4bits:
 @ r0 --> MODO a ser enviado
 
 _setmode:
-        mov r7, lr      @ salvando o ponteiro para a saída 
+        @ mov r7, lr      @ salvando o ponteiro para a saída 
+        push {fp, lr}
 
         bl _write4bits
 
@@ -135,7 +136,8 @@ _setmode:
         mov r6, #5
         mdelay r6, tmAddress_adr
 
-        bx r7
+        pop {fp, lr}
+        bx lr
 
 
 
@@ -195,9 +197,9 @@ _setmode:
 
         pinSet RSPIN
 
-        @ salva o ponto de retorno na Stack
-        ldr r1, TMPCHAR_adr
-        str r0, [r1]
+        @ ldr r1, TMPCHAR_adr
+        @ str r0, [r1]
+        push {r0}
         
         @ Primeiro os bits altos
         lsr r0, #4
@@ -205,22 +207,25 @@ _setmode:
 
         bl _pulseEnable
 
-        ldr r1, TMPCHAR_adr
-        ldr r0, [r1]
+        @ ldr r1, TMPCHAR_adr
+        @ ldr r0, [r1]
+        ldr r0, [sp, 0]
         lsr r0, #4
         bl _clean4bits
              
         @ Segundo os bits baixos
-        ldr r1, TMPCHAR_adr
-        ldr r0, [r1]
+        @ ldr r1, TMPCHAR_adr
+        @ ldr r0, [r1]
+        ldr r0, [sp, 0]
         bl _write4bits
 
         bl _pulseEnable
 
-        ldr r1, TMPCHAR_adr
-        ldr r0, [r1]
+        @ ldr r1, TMPCHAR_adr
+        @ ldr r0, [r1]
+        ldr r0, [sp, 0]
         bl _clean4bits
-
+        pop {r0}
         pinClr RSPIN
 .endm
 
