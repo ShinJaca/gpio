@@ -9,6 +9,8 @@ ASPIDOIS = -mcpu=cortex-a7 --defsym .pimodel=2
 
 # all: lcdtest clean
 
+BASEGCC=gcc -o $@ $+
+BASEAS=as -o $@ $<
 
 # LCD
 # Para RaspberryPi 2
@@ -36,6 +38,11 @@ cteste.o: lcdtest.c 1602minidrv.h
 	gcc -g -c -Wall -o $@ lcdtest.c
 
 
+mteste: teste clean
+teste: teste.c teste.o
+	$(BASEGCC)
+teste.o: teste.s
+	$(BASEAS)
 
 # Input
 
