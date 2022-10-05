@@ -166,6 +166,34 @@ _setmode:
         bl _clean4bits
 .endm
 
+@ Executa os passos para enviar um comando para o LCD
+.macro sendCmdM CMD
+        @ Primeiro os bits altos
+        push {r0} 
+
+        lsr r0, #4
+        bl _write4bits
+
+        bl _pulseEnable
+
+
+        ldr r0, [sp, 0]
+        lsr r0, #4
+        bl _clean4bits
+        
+
+        @ Segundo os bits baixos
+        ldr r0, [sp, 0]
+        bl _write4bits
+
+        bl _pulseEnable
+
+        ldr r0, [sp, 0]
+        bl _clean4bits
+
+        pop {r0}
+.endm
+
 .macro sendData CMD
 
         pinSet RSPIN
@@ -401,6 +429,32 @@ _sendChar:
         pop     {fp, lr}
         bx      lr
 @ Fim _sendChar
+
+.global _printStr
+.type   _printStr, %function
+
+_printStr:
+        push {fp, lr}
+
+        mov r1, r0      @ Copia o endereço da string para r1
+        
+        pinSet RSPIN
+loop:   ldr r0, [r1]    @ Carrega a string em r0
+        bic r0, 0xffffff00 @ Isolamento do caractere
+        sendCmdM        @ Envia o caractere em r0
+        add r1, 1       @ Itera a string para o proximo char
+
+        cmp r0, 0x0     @ Avalia o fim da string (char 0x0)
+        bne loop        @ Se o char no registrador não for o fim, volta o loop
+
+        pinClr RSPIN
+
+        mov r6, #50
+        udelay, r6, tmAddress_adr
+
+        pop     {fp, lr}
+        bx      lr
+@ Fim _printStr
 
 
 fileDescriptor_adr:     .word fileDescriptor
