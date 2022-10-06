@@ -1,12 +1,13 @@
 # MI - Sistemas Digitais (TEC499)
 
 ## Proposta
-Desenvolver um aplicativo de temporização (timer) na *Raspberry Pi Zero W*, que apresente a contagem num
+Com o objetivo de promover o aprendizado da linguagem Assembly, suas instruções e a construção de uma biblioteca, foi solicitado
+o desenvolvimento de um aplicativo de temporização (timer) na *Raspberry Pi Zero W*, que apresente a contagem num
 display LCD. O tempo inicial deverá ser configurado diretamente no código. Além disso,
 deverão ser usados 2 botões (push buttons) de controle: um para iniciar/parar a contagem e outro para reiniciar
 a partir do tempo definido.
 
-Com o objetivo de desenvolver uma biblioteca para uso futuro em conjunto com um
+Com a pretensão de desenvolver uma biblioteca para uso futuro em conjunto com um
 programa em linguagem C, a função para enviar mensagem para o display deve estar
 separada como uma biblioteca (.o), e permitir no mínimo as seguinte operações:
 - Limpar display.
@@ -14,9 +15,23 @@ separada como uma biblioteca (.o), e permitir no mínimo as seguinte operações
 - Posicionar cursor (linha e coluna).
 
 ## Produto desenvolvido
-- O temporizador faz a contagem em segundos no display num intervalo de 00 a 99. Após o último dígito o temporizador reinicia voltando para o 00 e retomando a contagem.
-- O botão de pause/resume funciona, porém precisa ser apertado por ao menos 1 segundo antes de ser solto para o funcionamento adequado.
-- O botão de reinicio funciona, voltando o contador para o 0.
+O kit de desenvolvimento utilizado apenas disponibilizava a *Raspberry Pi Zero W*. Porém, o produto foi desenvolvido para o funcionamento tanto na *Raspberry Pi Zero W* quanto na *Raspberry Pi 2*. Portanto, no arquivo de *makefile* há os códigos compatíveis para ambos os micro-controladores, sendo documentado no último tópico deste README. 
+Esses micro-controladores possuem arquitetura ARMv6, portanto, o código Assembly foi desenvolvido nessa arquitetura correspondente.
+
+Todos os requisitos do problema proposto foram cumpridos:
+- O tempo inicial é configurado diretamente no código.
+- Há 2 botões de controle: B1 (início e parada) e B2 (reinício)
+- O código está todo em Assembly
+
+A biblioteca possui as funcionalidades:
+- Limpar display
+- Escrever caractere
+- Posicionar cursor (linha e coluna)
+
+## Funcionamento
+- O temporizador faz a contagem em segundos no display num intervalo de 00 (tempo inicial) a 99 (tempo final). Após o último dígito o temporizador reinicia voltando para o 00 e retomando a contagem.
+- O botão de inicío/parada funciona, porém precisa ser apertado por ao menos 1 segundo antes de ser solto para o funcionamento adequado.
+- O botão de reinicio funciona, voltando o contador ao tempo inicial.
 
 ## Softwares Utilizados
 - Visual Code Studio: Editor de código-fonte utilizado como ambiente de desenvolvimento, no qual foi usado juntamente com a extensão *Arm Assembly* v1.7.4 do autor *dan-c-underwood*, disponibilizada pelo próprio marketplace do software.
@@ -36,6 +51,10 @@ separada como uma biblioteca (.o), e permitir no mínimo as seguinte operações
 
 ### Raspberry Pi Zero W
 
+#### Arquitetura
+Como dito anteriormente, a Raspberry possui arquitetura ARMv6, e código em assembly foi escrito para essa arquitetura.
+- [Documentação ARMv6](https://developer.arm.com/documentation/ddi0419/c/)
+
 <div id="image11" style="display: inline_block" align="center">
 		<img src="/raspberry.jpg"/><br>
 		<p>
@@ -43,8 +62,10 @@ separada como uma biblioteca (.o), e permitir no mínimo as seguinte operações
 		</p>
 	</div>
 
-- [Documentação](https://www.raspberrypi.com/documentation/)
-- [CPU Broadcom BCM2835 SOC](https://www.raspberrypi.org/app/uploads/2012/02/BCM2835-ARM-Peripherals.pdf)
+
+#### Especificações
+- [Documentação Raspberry](https://www.raspberrypi.com/documentation/)
+- [Documentação CPU Broadcom BCM2835 SOC](https://www.raspberrypi.org/app/uploads/2012/02/BCM2835-ARM-Peripherals.pdf)
 - ARM1176JZF-S core type
 - Single-core
 - Clock Speed 1 GHz
@@ -53,8 +74,8 @@ separada como uma biblioteca (.o), e permitir no mínimo as seguinte operações
 
 #### Pinos Utilizados
 
-- GPIO 05 - Input -> Push Button 1
-- GPIO 19 - Input -> Push Button 2
+- GPIO 05 - Input -> Push Button 1 (início/pause)
+- GPIO 19 - Input -> Push Button 2 (reinício)
 
 - GPIO 12 - Output -> D4 (LCD)
 - GPIO 16 - Output -> D5 (LCD)
@@ -73,7 +94,7 @@ separada como uma biblioteca (.o), e permitir no mínimo as seguinte operações
 		</p>
 	</div>
   
-- [Documentação](https://www.sparkfun.com/datasheets/LCD/HD44780.pdf)
+- [Documentação Hitachi 44780](https://www.sparkfun.com/datasheets/LCD/HD44780.pdf)
 
 #### Pinos Utilizados
 
@@ -112,27 +133,37 @@ separada como uma biblioteca (.o), e permitir no mínimo as seguinte operações
 
 - *inputest.s* - Programa de teste de entrada, lê o registrador de nível dos pinos e filtra para o pino específico a ser testado.
 
+- *1602minidrv.s* - Biblioteca para o display 16x2 com as operações solicitadas no problema.
+
+- *1602minidrv.h* - Cabeçalho (header) de todas as funções da biblioteca solicitada.
+
 ### Build
 
+#### Raspberry Pi Zero W
+
 ```console
-make
 
-# ou
-make lcdtest
-
-# ou
-make inputest
-
-# para limpeza
+make lcdtestZ
 make clean
+sudo ./lcdtestZ
+
 ```
 
-### Compilação Manual
+#### Raspberry Pi 2
 
 ```console
-# montagem
-as -o lcdtest.o lcdtest.s
 
-# link com gcc (necessário pelas funções de sistema)
-gcc -o lcdtest lcdtest.o
+make lcdtest2
+make clean
+sudo ./lcdtest2
+
+```
+
+#### Clean
+Remove todos os arquivos *.o* gerados, deixando apenas os executveis.
+```console
+
+# Para limpeza
+make clean
+
 ```
