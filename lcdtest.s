@@ -21,25 +21,6 @@
         .text
         .align  2
 
-updateTimer:
-        push    {fp, lr}
-        bl      _clearDisplay
-
-        add     r0, 0x30
-        add     r1, 0x30
-
-        sub     sp, sp, #8
-        str     r0, [sp, 0]
-        str     r1, [sp, 4]
-
-        bl      _sendChar
-        ldr     r1, [sp, 4]
-        bl      _sendChar
-
-        add     sp, sp, #8
-        
-        pop     {fp, lr}
-        bx      lr
 
 
         .global main
@@ -59,62 +40,92 @@ setup:
         bl      _turnOnCursorOff
         bl      _setMemoryMode
 
-        ldr     r0, =gpioAdr
-        bl      _getGpioAdr
+
 loop:
-        mov     r0, #100
+        mov     r0, #1000
         bl      _mdelay
+
+btn1:
+        mov r0, PBTN1
+        bl _readIn
+        cmp r0, #0
+        bgt btn2
         
-        ldr     r1, =CNTR
-        ldr     r0, [r1]
-        add     r0, #1
-        str     r0, [r1]
+        ldr r1, =COUNTER
+        ldr r0, [r1]
+        mov r0, 0x30
+        str r0, [r1]
+
+        ldr r1, =COUNTERDEC
+        ldr r0, [r1]
+        mov r0, 0x30
+        str r0, [r1]
+
+btn2:
+        mov r0, PBTN2
+        bl _readIn
+        cmp r0, #0
+        bgt btn3
         
-        cmp     r0, #10
-        bne     btn1
-@ else
+        ldr r1, =PAUSE
+        ldr r0, [r1]
+        cmp r0, #0
+        moveq r0, #1
+        streq r0, [r1]
+
+btn3:
+        mov r0, PBTN3
+        bl _readIn
+        cmp r0, #0
+        bgt timerUpdate
+        
+        ldr r1, =PAUSE
+        ldr r0, [r1]
+        cmp r0, #1
+        moveq r0, #0
+        streq r0, [r1]
+
+
+timerUpdate:
+        bl      _cursorHome
+
+        ldr     r2, =COUNTERDEC
+        ldr     r0, [r2]
+
+        bl      _sendChar
+
         ldr     r2, =COUNTER
-        ldr     r3, =COUNTERDEC
-        add     r0, #1
-        add     r1, #1
-        cmp     r0, #9
-        movgt   r0, #0
-        cmp     r1, #9
-        movgt   r1, #0
-        str     r0, [r2]
-        str     r1, [r3]
+        ldr     r0, [r2]
 
-btn1:   @ Reset Button
-        mov     r0, PBTN1       
-        bl      _readIn
-        cmp     r0, #0
-        bgt     updtmr
+        bl      _sendChar
 
-        mov     r0, #0
-        mov     r1, #0
-
-
-@ btn2:   @ Pause Button
-@         mov     r0, PBTN2
-@         bl      _readIn
-
-@         ldr     r4, =POLD
-@         ldr     r5, [r4]
+        ldr r2, =COUNTER
+        ldr r0, [r2]
+        ldr r4, =PAUSE
+        ldr r3, [r4]
+        cmp r3, #0
+        addeq r0, #1
         
-@         cmp     r5, r0
-@         beq     updtmr
-@         str     r0, [r4]
+
+        cmp     r0, 0x39
+        movgt   r0, 0x30
+        str r0, [r2]
         
-@         cmp     r0, #0
-@         blne    updtmr
+        ble loop
 
-@         ldr     r0, =PAUSE
-@         mov     r1, [r0]
-
-
-updtmr: @ Update valores de timer
-        bl    updateTimer
+        ldr r2, =COUNTERDEC
+        ldr r0, [r2]
+        ldr r4, =PAUSE
+        ldr r3, [r4]
+        cmp r3, #0
+        add r0, #1
         
+
+        cmp     r0, 0x39
+        movgt   r0, 0x30
+        str r0, [r2]
+
+  
         b loop
 
 
@@ -138,8 +149,8 @@ COUNTER_adr:            .word COUNTER
 .data
         gpioAdr:        .word 0
         CNTR:           .word 0
-        COUNTER:        .word 0
-        COUNTERDEC:     .word 0
+        COUNTER:        .word 0x30
+        COUNTERDEC:     .word 0x30
         PAUSE:          .byte 0
         POLD:           .word 0, 0, 0 @ PBTN1, PBTN2, PBTN3
 

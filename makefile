@@ -25,9 +25,11 @@ lcdtest2.o: lcdtest.s
 
 # Para RaspberryPi Zero
 raspzero: lcdtestZ clean
-lcdtestZ: lcdtestZ.o
+lcdtestZ: lcdtestZ.o 1602minidrvZ.o
 	gcc $(COMPOPTS) -o $(COMPOUTPUT) $+
-lcdtestZ.o: lcdtest.s
+lcdtestZ.o: lcdtest.s 
+	as -o $@ $< $(ASPIZERO)
+1602minidrvZ.o: 1602minidrv.s
 	as -o $@ $< $(ASPIZERO)
 
 
