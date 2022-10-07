@@ -25,10 +25,6 @@ updateTimer:
         push    {fp, lr}
         bl      _clearDisplay
 
-        ldr     r2, =COUNTER
-        ldr     r3, =COUNTERDEC
-        str     r0, [r2]
-        str     r1, [r3]
         add     r0, 0x30
         add     r1, 0x30
 
@@ -77,7 +73,16 @@ loop:
         cmp     r0, #10
         bne     btn1
 @ else
-        ldr     r2, 
+        ldr     r2, =COUNTER
+        ldr     r3, =COUNTERDEC
+        add     r0, #1
+        add     r1, #1
+        cmp     r0, #9
+        movgt   r0, #0
+        cmp     r1, #9
+        movgt   r1, #0
+        str     r0, [r2]
+        str     r1, [r3]
 
 btn1:   @ Reset Button
         mov     r0, PBTN1       
