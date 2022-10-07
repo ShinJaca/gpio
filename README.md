@@ -145,7 +145,7 @@ Como dito anteriormente, a Raspberry possui arquitetura ARMv6, e código em asse
 
 make raspzero
 
-sudo ./lcdtestZ
+sudo ./lcdtest
 
 ```
 
@@ -155,7 +155,7 @@ sudo ./lcdtestZ
 
 make raspdois
 
-sudo ./lcdtest2
+sudo ./lcdtest
 
 ```
 
