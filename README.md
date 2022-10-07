@@ -20,7 +20,6 @@ Esses micro-controladores possuem arquitetura ARMv6, portanto, o código Assembl
 
 Todos os requisitos do problema proposto foram cumpridos:
 - O tempo inicial é configurado diretamente no código.
-- Há 2 botões de controle: B1 (início e parada) e B2 (reinício)
 - O código está todo em Assembly
 
 A biblioteca possui as funcionalidades:
@@ -28,10 +27,18 @@ A biblioteca possui as funcionalidades:
 - Escrever caractere
 - Posicionar cursor (linha e coluna)
 
+#### O seguinte requisito não foi cumprido:
+- Utilizar 2 botões de controle. 
+
+Em vez disso, foram utilizados os 3 botões conectados na protoboard.
+- B1 - Botão de reset
+- B2 - Botão de pause
+- B3 - Botão de continue
+
 ## Funcionamento
 - O temporizador faz a contagem em segundos no display num intervalo de 00 (tempo inicial) a 99 (tempo final). Após o último dígito o temporizador reinicia voltando para o 00 e retomando a contagem.
-- O botão de inicío/parada funciona, porém precisa ser apertado por ao menos 1 segundo antes de ser solto para o funcionamento adequado.
-- O botão de reinicio funciona, voltando o contador ao tempo inicial.
+- Os botões de pause/continue funcionam, porém precisam ser apertados por ao menos 1 segundo antes de serem soltos para o funcionamento adequado.
+- O botão de restart funciona, voltando o contador ao tempo inicial.
 
 ## Softwares Utilizados
 - Visual Code Studio: Editor de código-fonte utilizado como ambiente de desenvolvimento, no qual foi usado juntamente com a extensão *Arm Assembly* v1.7.4 do autor *dan-c-underwood*, disponibilizada pelo próprio marketplace do software.
@@ -47,7 +54,7 @@ A biblioteca possui as funcionalidades:
 - Raspberry Pi Zero W
 - Display LCD Hitachi HD44780U
 - GPIO Extension Board
-- 2 Push Buttons
+- 3 Push Buttons
 
 ### Raspberry Pi Zero W
 
@@ -74,8 +81,9 @@ Como dito anteriormente, a Raspberry possui arquitetura ARMv6, e código em asse
 
 #### Pinos Utilizados
 
-- GPIO 05 - Input -> Push Button 1 (início/pause)
-- GPIO 19 - Input -> Push Button 2 (reinício)
+- GPIO 05 - Input -> Push Button 1 (restart)
+- GPIO 19 - Input -> Push Button 2 (pause)
+- GPIO 26 - Input -> Push Button 3 (continue)
 
 - GPIO 12 - Output -> D4 (LCD)
 - GPIO 16 - Output -> D5 (LCD)
@@ -144,7 +152,6 @@ Como dito anteriormente, a Raspberry possui arquitetura ARMv6, e código em asse
 ```console
 
 make raspzero
-
 sudo ./lcdtest
 
 ```
@@ -154,7 +161,6 @@ sudo ./lcdtest
 ```console
 
 make raspdois
-
 sudo ./lcdtest
 
 ```
