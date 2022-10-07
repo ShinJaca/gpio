@@ -473,6 +473,7 @@ _udelay:
 
 .global _mdelay
 .type	_mdelay, %function
+_mdelay:
         push	{fp, lr}
         mov     r6, r0
         mdelay  r6, tmAddress_adr

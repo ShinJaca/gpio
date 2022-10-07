@@ -137,7 +137,7 @@ COUNTER_adr:            .word COUNTER
 
 .data
         gpioAdr:        .word 0
-        CNTR            .word 0
+        CNTR:           .word 0
         COUNTER:        .word 0
         COUNTERDEC:     .word 0
         PAUSE:          .byte 0
