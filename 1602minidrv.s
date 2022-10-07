@@ -361,14 +361,14 @@ _clearDisplay:
 @ Fim _clearDisplay
 
 
-.global _turnOnCursorOn
-.type   _turnOnCursorOn, %function
+.global _turnOnCursorOff
+.type   _turnOnCursorOff, %function
 
-_turnOnCursorOn:
+_turnOnCursorOff:
 @ salva o ponto de retorno na Stack
         push {fp, lr}
 
-        sendCmd D1C1B0
+        sendCmd D1C0B0
 
         mov r6, #5
         mdelay r6, tmAddress_adr
@@ -450,11 +450,59 @@ loop:   ldr r0, [r1]    @ Carrega a string em r0
         pinClr RSPIN
 
         mov r6, #50
-        udelay, r6, tmAddress_adr
+        udelay r6, tmAddress_adr
 
         pop     {fp, lr}
         bx      lr
 @ Fim _printStr
+
+.global _udelay
+.type   _udelay, %function
+_udelay:
+        push    {fp, lr}
+        mov     r6, r0
+        udelay  r6, tmAddress_adr
+        pop     {fp, lr}
+        bx      lr
+@Fim _udelay
+
+.global _mdelay
+.type	_mdelay, %function
+        push	{fp, lr}
+        mov     r6, r0
+        mdelay  r6, tmAddress_adr
+        pop	{fp, lr}
+        bx	lr
+@ Fim _mdelay
+
+.global _readIn
+.type   _readIn, %function
+_readIn:
+        push {fp, lr}
+
+        ldr r4, gpioAddress_adr
+        ldr r4, [r4]
+
+        ldr r1, [r4, GPLEV0]    @ carrega os valores no registrador de nivel dos GPIO
+        mvn r2, r0              @ Mascara da posição do GPIO5 ( inversa )
+        bic r1, r1, r2          @ Limpa os valores dos outros pinos restando somente o GPIO5
+        mov r0, r1
+
+        pop  {fp, lr}
+        bx  lr
+@ Fim _readIn
+
+.global _getGpioAdr
+.type   _getGpioAdr, %function
+_getGpioAdr: @ r0 destVarAdr
+        push    {fp, lr}
+
+        ldr r1, gpioAddress_adr
+        ldr r1, [r1]
+        str r1, [r0]
+
+        pop     {fp, lr}
+        bx      lr
 
 
 fileDescriptor_adr:     .word fileDescriptor
