@@ -143,8 +143,8 @@ Como dito anteriormente, a Raspberry possui arquitetura ARMv6, e código em asse
 
 ```console
 
-make lcdtestZ
-make clean
+make raspzero
+
 sudo ./lcdtestZ
 
 ```
@@ -153,8 +153,8 @@ sudo ./lcdtestZ
 
 ```console
 
-make lcdtest2
-make clean
+make raspdois
+
 sudo ./lcdtest2
 
 ```
