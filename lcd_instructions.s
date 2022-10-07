@@ -6,7 +6,6 @@
 .equ    CLEAR,  0b00000001  @ Clears entire display and sets DDRAM address 0 in address counter.
 .equ    HOME,   0b00000010  @ Sets DDRAM address 0 in address counter. Also returns display from being shifted to original position. DDRAM contents remain unchanged.
 
-@ OBS: Os bits de SHFTL e SHFTL parecem estar trocados
 .equ    SHFTL,  0b00000111  @ Shifts the entire display to the left. The cursor follows the display shift.
 .equ    SHFTR,  0b00000101  @ Shifts the entire display to the right. The cursor follows the display shift.
 .equ    EMSLN,  0b00000110  @ Entry Mode Set
