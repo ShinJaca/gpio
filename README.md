@@ -1,6 +1,11 @@
-# MI - Sistemas Digitais (TEC499)
+# MI - Sistemas Digitais (TEC499) - Problema 1
 
-## Proposta
+## Grupo
+- Sérgio Pugliesi
+- Lucas de Paiva
+- Hugo Ribeiro
+
+## Proposta - Temporizador
 Com o objetivo de promover o aprendizado da linguagem Assembly, suas instruções e a construção de uma biblioteca, foi solicitado
 o desenvolvimento de um aplicativo de temporização (timer) na *Raspberry Pi Zero W*, que apresente a contagem num
 display LCD. O tempo inicial deverá ser configurado diretamente no código. Além disso,
@@ -18,7 +23,7 @@ separada como uma biblioteca (.o), e permitir no mínimo as seguinte operações
 O kit de desenvolvimento utilizado apenas disponibilizava a *Raspberry Pi Zero W*. Porém, o produto foi desenvolvido para o funcionamento tanto na *Raspberry Pi Zero W* quanto na *Raspberry Pi 2*. Portanto, no arquivo de *makefile* há os códigos compatíveis para ambos os micro-controladores, sendo documentado no último tópico deste README. 
 Esses micro-controladores possuem arquitetura ARMv6, portanto, o código Assembly foi desenvolvido nessa arquitetura correspondente.
 
-Todos os requisitos do problema proposto foram cumpridos:
+Os seguintes requisitos do problema proposto foram cumpridos:
 - O tempo inicial é configurado diretamente no código.
 - O código está todo em Assembly
 
@@ -81,7 +86,7 @@ Como dito anteriormente, a Raspberry possui arquitetura ARMv6, e código em asse
 
 #### Pinos Utilizados
 
-- GPIO 05 - Input -> Push Button 1 (restart)
+- GPIO 05 - Input -> Push Button 1 (reset)
 - GPIO 19 - Input -> Push Button 2 (pause)
 - GPIO 26 - Input -> Push Button 3 (continue)
 
@@ -173,3 +178,6 @@ Remove todos os arquivos *.o* gerados, deixando apenas os executveis.
 make clean
 
 ```
+
+### Conclusão
+Os objetivos de aprendizado foram alcançados. A compreensão da linguagem Assembly da arquitetura correspondente (ARMv6) e o uso correto de suas instruções, além da construção da biblioteca solicitada para ser usado posteriormente em linguagem *C* se mostraram tarefas desafiadoras, mas o projeto foi concluído com êxito. O produto desenvolvido atende aos requisitos básicos para o funcionamento de um dispositivo de contagem, podendo ser posteriormente acrescentado melhorias como mensagens para interação do usuário, e a utilização de apenas um botão para as funções de *pause/continue*.
